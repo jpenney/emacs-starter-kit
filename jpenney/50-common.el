@@ -3,17 +3,17 @@
 
 (setq ispell-program-name "aspell")
 ;; server mode
-(cond 
- (window-system
-  (if (boundp 'running-xemacs)
-      (gnuserv-start)
-    (server-start))
-  (message "emacs server started")
+;(cond 
+; (window-system
+;  (if (boundp 'running-xemacs)
+;      (gnuserv-start)
+;    (server-start))
+;  (message "emacs server started")
 ;  (if macosx-p
 ;      (progn
 ;        (add-hook 'kill-buffer-query-functions 'no-killer)
 ;        ))
-  ))
+;  ))
 
 (global-set-key [kp-delete] 'delete-char)
 (global-set-key [(meta kp-delete)] 'kill-word)
@@ -28,8 +28,8 @@
 
 ;;
 ;; Load CEDET
-;(load-file "~/.emacs.d/site/cedet/common/cedet.el")
-;(load-save-place-alist-from-file)
+(load-file (concat jcp-home "lib/cedet/common/cedet.el"))
+(load-save-place-alist-from-file)
 
 
 ;; Enabling various SEMANTIC minor modes.  See semantic/INSTALL for more ideas.
@@ -44,7 +44,7 @@
 
 ;; * This enables even more coding tools such as the nascent intellisense mode
 ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-;(semantic-load-enable-guady-code-helpers)
+(semantic-load-enable-guady-code-helpers)
 
 ;; * This turns on which-func support (Plus all other code helpers)
 ;;(semantic-load-enable-excessive-code-helpers)
@@ -54,28 +54,34 @@
 ;; helpers above.
 ;; (semantic-load-enable-semantic-debugging-helpers)
 
-;(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
-;(setq interpreter-mode-alist (cons '("python" . python-mode)
-;                                   interpreter-mode-alist))
-;(autoload 'python-mode "python-mode" "Python editing mode." t)
+(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
+(setq interpreter-mode-alist (cons '("python" . python-mode)
+                                   interpreter-mode-alist))
+(autoload 'python-mode "python-mode" "Python editing mode." t)
 
-;(autoload 'pymacs-apply "pymacs")
-;(autoload 'pymacs-call "pymacs")
-;(autoload 'pymacs-eval "pymacs" nil t)
-;(autoload 'pymacs-exec "pymacs" nil t)
-;(autoload 'pymacs-load "pymacs" nil t)
+(autoload 'pymacs-apply "pymacs")
+(autoload 'pymacs-call "pymacs")
+(autoload 'pymacs-eval "pymacs" nil t)
+(autoload 'pymacs-exec "pymacs" nil t)
+(autoload 'pymacs-load "pymacs" nil t)
 
-(defun my-window-setup-hook ()
+(defcustom my-window-setup-hook nil
+  "Hook for window-setup"
+  :type 'hook)
+
+(defun my-window-setup ()
    (color-theme-dark-laptop)
    (tool-bar-mode 1)
    (tooltip-mode 1)   
    (menu-bar-mode 1)
+   (run-hooks 'my-window-setup-hook)
    )
+
 (defun my-after-make-frame (win)
-  (my-window-setup-hook)
+  (my-window-setup)
   )
 
-(add-hook 'window-setup-hook 'my-window-setup-hook)
+(add-hook 'window-setup-hook 'my-window-setup)
 (add-to-list 'after-make-frame-functions 'my-after-make-frame)
 (add-hook 'python-mode-hook
           '(lambda () (eldoc-mode 1)
@@ -84,4 +90,4 @@
              (setq outline-regexp "def\\|class ")
              ) t)
 
-(my-window-setup-hook)
+(my-window-setup)

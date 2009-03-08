@@ -8,5 +8,11 @@
          (set-terminal-coding-system 'utf-8)
          (set-keyboard-coding-system 'utf-8)
          (prefer-coding-system 'utf-8)
+
+         (defun my-window-setup-darwin ()
+           (set-default-font "-apple-Monaco-medium-normal-normal-Regular-14-*-*-*-*-*-iso10646-1")
+           )
+         
+         (add-hook 'my-window-setup-hook 'my-window-setup-darwin)
          )
-)
+  )
