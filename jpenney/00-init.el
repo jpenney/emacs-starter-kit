@@ -12,9 +12,11 @@
 
 (defvar jcp-home (file-name-directory
                   (or (buffer-file-name) load-file-name)))
+
 (add-to-list 'load-path (concat jcp-home "lib"))
-(setq  byte-compile-warnings ())
-(setq byte-complie-verbose 'nil)
+(load-library "bytecomp")
+(setq byte-complile-verbose 'nil)
+(setq byte-compile-warnings ())
 (require 'byte-code-cache)
 (add-to-list 'bcc-blacklist (concat jcp-home "lib/ecb/.*"))
 (add-to-list 'bcc-blacklist (concat jcp-home "lib/cedet/.*"))
@@ -22,5 +24,6 @@
 (require 'color-theme)
 (color-theme-initialize)
 (setq inhibit-startup-message)
-(pc-selection-mode)
+(pc-selection-mode 't)
+(tabkey2-mode 't)
 

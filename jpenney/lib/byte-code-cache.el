@@ -202,7 +202,8 @@ the result of BYTE-COMPILE-FILE."
 loads ORIGNAME."
 
   ;; This function is not on the fast path.
-
+  ;; if we don't require bytecomp the byte-complie-* vars seem to fail
+  (require 'bytecomp)
   (let ((byte-compile-verbose nil)
         (font-lock-verbose nil)
         (byte-compile-warnings '())

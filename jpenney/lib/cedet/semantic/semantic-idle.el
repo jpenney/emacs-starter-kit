@@ -323,9 +323,7 @@ This function will reparse the current buffer, and if successful,
 call additional functions registered with the timer calls."
   (when (zerop (recursion-depth))
     (let ((debug-on-error nil))
-      (semantic-idle-scheduler-kill-timer)
       (save-match-data (semantic-idle-core-handler))
-      (semantic-idle-scheduler-setup-timer)
       )))
 
 

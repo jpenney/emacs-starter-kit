@@ -29,7 +29,8 @@
 ;;
 ;; Load CEDET
 (let ((bcc-enabled 'nil)
-      (byte-compile-verbose 'nil))
+      (byte-compile-verbose 'nil)
+      (byte-compile-warnings ()))
   (load-file (concat jcp-home "lib/cedet/common/cedet.el"))
   (load-save-place-alist-from-file)
 
@@ -59,7 +60,8 @@
   (add-to-list 'load-path (concat jcp-home "lib/ecb"))
   (require 'ecb)
   (ecb-byte-compile)
-)
+  )
+  
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 (setq interpreter-mode-alist (cons '("python" . python-mode)
                                    interpreter-mode-alist))

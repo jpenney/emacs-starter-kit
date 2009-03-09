@@ -10,6 +10,9 @@
 ;; -Neal Stephenson, "In the Beginning was the Command Line"
 
 ;; Load path etc.
+(require 'bytecomp)
+(setq byte-complile-verbose 'nil)
+(setq byte-compile-warnings ())
 
 (setq dotfiles-dir (file-name-directory
                     (or (buffer-file-name) load-file-name)))

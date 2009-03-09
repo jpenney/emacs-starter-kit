@@ -1,13 +1,8 @@
-(require 'ede)
-(require 'cedet-files)
-
-(require 'ede-proj)
-
-;; Copyright (C) 2008 Eric M. Ludlam
+;; Copyright (C) 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 ;; Joakim Verona <joakim@verona.se>
-;; X-RCS: $Id: ede-proj-maven2.el,v 1.1 2009/02/27 23:06:04 joakimv Exp $
+;; X-RCS: $Id: ede-proj-maven2.el,v 1.3 2009/03/08 20:11:43 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -102,6 +97,9 @@
 
 ;; - an auxilary project file, like ede-simple could be an useful option
 
+(require 'ede)
+(require 'cedet-files)
+
 ;;; Code:
 
 ;; Because there is one root project file, and no sub project files,
@@ -147,8 +145,10 @@ ROOTPROJ is nil, since there is only one project."
              (ede-maven2-project "Maven"
                                  :name "maven dir" ; make fancy name from dir here.
                                  :directory dir
-                                 :file "pom.xml")))
-         (message "adding %s to global proj list" this)
+                                 :file
+				 (expand-file-name "pom.xml" dir)
+				 )))
+         ;; (message "adding %s to global proj list" this)
          (ede-add-project-to-global-list this)
          ;;TODO the above seems to be done somewhere else, maybe ede-load-project-file
          ;; this seems to lead to multiple copies of project objects in ede-projects
@@ -194,6 +194,12 @@ Argument COMMAND is the command to use when compiling."
   (let ((default-directory (ede-project-root-directory obj)))
     (compile "mvn install")))
 
+(defmethod project-compile-target ((obj ede-maven2-target-java) &optional command)
+  "Compile the current target OBJ.
+Argument COMMAND is the command to use for compiling the target."
+  (message "mvn install to be executed here %s" obj)
+  (let* ((default-directory (oref obj :path)))
+    (compile "mvn install")))
 
 ;;; File Stuff
 ;;
