@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 2002, 2003 Vladimir G. Sekissov
 
-;; Author: Jason Penney <jpenney@mini.local>
-;; Created: 2008-12-31 09:13:28-0500
+;; Author:  <jpenney@JPENNEY>
+;; Created: 2009-03-09 16:34:26-0400
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 

@@ -388,12 +388,14 @@
                  (let
                      ((s $1))
                    (if
-                       (string-match "^{[\n	 ]*" s)
+                       (string-match "^{[
+\n	 ]*" s)
                        (setq s
                              (substring s
                                         (match-end 0))))
                    (if
-                       (string-match "[\n	 ]*}$" s)
+                       (string-match "[
+\n	 ]*}$" s)
                        (setq s
                              (substring s 0
                                         (match-beginning 0))))

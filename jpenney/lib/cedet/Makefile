@@ -42,6 +42,7 @@ tests
 ## Path to your Emacs
 EMACS=emacs
 EMACSFLAGS=-batch --no-site-file
+#EMACSFLAGS=-batch -eval ''
 
 ## Your shell (On Windows/Cygwin I recommend to use bash)
 #SHELL=bash

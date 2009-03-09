@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 2002, 2003 David Ponce
 
-;; Author: Jason Penney <jpenney@mini.local>
-;; Created: 2008-12-31 09:13:14-0500
+;; Author:  <jpenney@JPENNEY>
+;; Created: 2009-03-09 16:33:57-0400
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 

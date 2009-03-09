@@ -46,7 +46,7 @@ autoloads:
 	   echo "(add-to-list 'load-path \"$$loadpath\")" >> $@-compile-script; \
 	done;
 	@echo "(require 'cedet-autogen)" >> $@-compile-script
-	"$(EMACS)" -batch --no-site-file -l $@-compile-script -f cedet-batch-update-autoloads $(LOADDEFS) $(LOADDIRS)
+	"$(EMACS)" $(EMACSFLAGS) -l $@-compile-script -f cedet-batch-update-autoloads $(LOADDEFS) $(LOADDIRS)
 
 .PHONY: init
 init: $(init_LISP)
@@ -128,7 +128,7 @@ metagrammar: $(metagrammar_SEMANTIC_GRAMMAR)
 	done;
 	@echo "(require 'semantic-load)" >> grammar-make-script
 	@echo "(require 'semantic-grammar)" >> grammar-make-script
-	"$(EMACS)" -batch --no-site-file -l grammar-make-script -f semantic-grammar-batch-build-packages $^
+	"$(EMACS)" $(EMACSFLAGS) -l grammar-make-script -f semantic-grammar-batch-build-packages $^
 
 .PHONY: tests
 tests: $(tests_LISP)

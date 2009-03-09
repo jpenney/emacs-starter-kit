@@ -1,6 +1,5 @@
 D/templates////
 /.cvsignore/1.2/Mon Mar  9 14:45:38 2009//
-/Makefile/1.15/Mon Mar  9 14:43:46 2009//
 /Project.ede/1.14/Mon Mar  9 14:43:46 2009//
 /srecode-args.el/1.8/Mon Mar  9 14:43:46 2009//
 /srecode-compile.el/1.13/Mon Mar  9 14:43:46 2009//
@@ -32,3 +31,4 @@ D/templates////
 /srecode-texi.el/1.7/Mon Mar  9 14:43:46 2009//
 /srecode.el/1.5/Mon Mar  9 14:43:46 2009//
 /srecode.texi/1.15/Mon Mar  9 14:43:46 2009//
+/Makefile/1.15/Mon Mar  9 14:47:52 2009//

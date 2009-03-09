@@ -1,7 +1,15 @@
 (message "50-common")
-;;(color-theme-initialize)
+(require 'org-install)
+;;(load-library (concat jcp-home "lib/color-theme.el"))
+(require 'color-theme)
+(color-theme-initialize)
+
+(setq inhibit-startup-message)
+(pc-selection-mode 't)
+(tabkey2-mode 't)
 
 (setq ispell-program-name "aspell")
+
 ;; server mode
 ;(cond 
 ; (window-system
@@ -73,6 +81,19 @@
 (autoload 'pymacs-exec "pymacs" nil t)
 (autoload 'pymacs-load "pymacs" nil t)
 
+(defun jcp-org-load ()
+  (progn
+    (org-enforce-todo-checkbox-dependencies)
+    (setq org-hide-leading-stars 't)
+    (setq org-log-done '(note))
+    (setq org-log-note-clock-out 't)
+    (setq org-export-with-archived-trees nil)
+    (setq org-enforce-todo-checkbox-dependencies 't)
+    (setq org-special-ctrl-k 't)
+    ))
+
+(add-hook 'org-load-hook 'jcp-org-load) 
+
 (defcustom my-window-setup-hook nil
   "Hook for window-setup"
   :type 'hook)
@@ -85,9 +106,12 @@
    (run-hooks 'my-window-setup-hook)
    )
 
+
+
 (defun my-after-make-frame (win)
   (my-window-setup)
   )
+
 
 (add-hook 'window-setup-hook 'my-window-setup)
 (add-to-list 'after-make-frame-functions 'my-after-make-frame)
@@ -97,5 +121,7 @@
                   'py-beginning-of-def-or-class)
              (setq outline-regexp "def\\|class ")
              ) t)
+
+
 
 (my-window-setup)

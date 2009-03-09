@@ -185,7 +185,7 @@ Argument PPATH is the path to the directory we are going to analyze.
 ;;;;;;  "eieio-custom.el" "eieio-doc.el" "eieio-load.el" "eieio-speedbar.el"
 ;;;;;;  "eieio-test-methodinvoke.el" "eieio-tests.el" "eieio.el"
 ;;;;;;  "eieiocomp.el" "psql.el" "widget-d.el" "widget-i.el") (18869
-;;;;;;  11306 636000))
+;;;;;;  32169 115000))
 
 ;;;***
 
