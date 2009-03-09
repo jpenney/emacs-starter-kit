@@ -1,4 +1,3 @@
-(message "00-init")
 (cond
       ((string-match "cygwin" (symbol-name system-type))
        (defvar jcp-systype "cygwin"))
@@ -18,8 +17,6 @@
 (load-library (concat jcp-home "lib/color-theme.el"))
 (require 'color-theme)
 (color-theme-initialize)
-
-
-
-
+(setq inhibit-startup-message)
+(pc-selection-mode)
 

@@ -12,7 +12,8 @@
          (defun my-window-setup-darwin ()
            (set-default-font "-apple-Monaco-medium-normal-normal-Regular-14-*-*-*-*-*-iso10646-1")
            )
-         
+;         (require 'mac-key-mode)
+;         (mac-key-mode 1)
          (add-hook 'my-window-setup-hook 'my-window-setup-darwin)
          )
   )

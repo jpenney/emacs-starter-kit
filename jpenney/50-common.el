@@ -54,6 +54,9 @@
 ;; helpers above.
 ;; (semantic-load-enable-semantic-debugging-helpers)
 
+(add-to-list 'load-path (concat jcp-home "lib/ecb"))
+(require 'ecb)
+
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 (setq interpreter-mode-alist (cons '("python" . python-mode)
                                    interpreter-mode-alist))
