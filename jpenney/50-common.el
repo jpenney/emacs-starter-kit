@@ -28,8 +28,10 @@
 
 ;;
 ;; Load CEDET
-(load-file (concat jcp-home "lib/cedet/common/cedet.el"))
-(load-save-place-alist-from-file)
+(let ((bcc-enabled 'nil)
+      (byte-compile-verbose 'nil))
+  (load-file (concat jcp-home "lib/cedet/common/cedet.el"))
+  (load-save-place-alist-from-file)
 
 
 ;; Enabling various SEMANTIC minor modes.  See semantic/INSTALL for more ideas.
@@ -44,7 +46,7 @@
 
 ;; * This enables even more coding tools such as the nascent intellisense mode
 ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-(semantic-load-enable-guady-code-helpers)
+  (semantic-load-enable-guady-code-helpers)
 
 ;; * This turns on which-func support (Plus all other code helpers)
 ;;(semantic-load-enable-excessive-code-helpers)
@@ -54,9 +56,10 @@
 ;; helpers above.
 ;; (semantic-load-enable-semantic-debugging-helpers)
 
-(add-to-list 'load-path (concat jcp-home "lib/ecb"))
-(require 'ecb)
-
+  (add-to-list 'load-path (concat jcp-home "lib/ecb"))
+  (require 'ecb)
+  (ecb-byte-compile)
+)
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 (setq interpreter-mode-alist (cons '("python" . python-mode)
                                    interpreter-mode-alist))

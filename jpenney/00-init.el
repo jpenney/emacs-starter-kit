@@ -12,8 +12,12 @@
 
 (defvar jcp-home (file-name-directory
                   (or (buffer-file-name) load-file-name)))
-
-(add-to-ordered-list 'load-path (concat jcp-home "lib") 1)
+(add-to-list 'load-path (concat jcp-home "lib"))
+(setq  byte-compile-warnings ())
+(setq byte-complie-verbose 'nil)
+(require 'byte-code-cache)
+(add-to-list 'bcc-blacklist (concat jcp-home "lib/ecb/.*"))
+(add-to-list 'bcc-blacklist (concat jcp-home "lib/cedet/.*"))
 (load-library (concat jcp-home "lib/color-theme.el"))
 (require 'color-theme)
 (color-theme-initialize)

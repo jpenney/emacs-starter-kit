@@ -14,3 +14,5 @@ oddmuse/*
 /#.newsrc-dribble#
 .svn
 .DS_Store
+*/#*#
+elpa-to-submit/nxhtml/etc/schema/xhtml-loader.rnc~
