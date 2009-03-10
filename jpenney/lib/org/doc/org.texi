@@ -3,13 +3,8 @@
 @setfilename ../../info/org
 @settitle The Org Manual
 
-@set VERSION 6.23
-@set DATE February 2009
-
-@dircategory Emacs
-@direntry
-* Org Mode: (org).      Outline-based notes management and organizer
-@end direntry
+@set VERSION 6.24a
+@set DATE March 2009
 
 @c Version and Contact Info
 @set MAINTAINERSITE @uref{http://orgmode.org,maintainers webpage}
@@ -33,7 +28,7 @@
 @end macro
 
 @copying
-This manual is for Org (version @value{VERSION}).
+This manual is for Org version @value{VERSION}.
 
 Copyright @copyright{} 2004, 2005, 2006, 2007, 2008, 2009 Free Software Foundation
 
@@ -55,6 +50,11 @@ separately from the collection, you can do so by adding a copy of the
 license to the document, as described in section 6 of the license.
 @end quotation
 @end copying
+
+@dircategory Emacs
+@direntry
+* Org Mode: (org).      Outline-based notes management and organizer
+@end direntry
 
 @titlepage
 @title The Org Manual
@@ -93,7 +93,6 @@ license to the document, as described in section 6 of the license.
 * Exporting::                   Sharing and publishing of notes
 * Publishing::                  Create a web site of linked Org files
 * Miscellaneous::               All the rest which did not fit elsewhere
-* Extensions::                  Add-ons for Org mode
 * Hacking::                     How to hack your way around
 * History and Acknowledgments::  How Org came into being
 * Main Index::                  An index of Org's concepts and features
@@ -311,11 +310,12 @@ Markup rules
 * Include files::               Include the contents of a file during export
 * Tables exported::             Tables are exported richly
 * Inlined images::              How to inline images during export
-* Footnote markup::             
+* Footnote markup::             ASCII representation of footnotes
 * Emphasis and monospace::      To bold or not to bold
 * TeX macros and LaTeX fragments::  Create special, rich export.
 * Horizontal rules::            A line across the page
 * Comment lines::               Some lines will not be exported
+* Macro replacement::           Global replacement of place holdes
 
 HTML export
 
@@ -365,21 +365,18 @@ Miscellaneous
 * Clean view::                  Getting rid of leading stars in the outline
 * TTY keys::                    Using Org on a tty
 * Interaction::                 Other Emacs packages
-* Bugs::                        Things which do not work perfectly
 
 Interaction with other packages
 
 * Cooperation::                 Packages Org cooperates with
 * Conflicts::                   Packages that lead to conflicts
 
-Extensions
-
-* Extensions in the contrib directory::  These come with the Org distro
-* Other extensions::            These you have to find on the web.
-
 Hacking
 
+* Hooks::                       Who to reach into Org's internals
+* Add-on packages::             Available extensions
 * Adding hyperlink types::      New custom link types
+* Context-sensitive commands::  How to add functioality to such commands
 * Tables in arbitrary syntax::  Orgtbl for LaTeX and other programs
 * Dynamic blocks::              Automatically filled blocks
 * Special agenda views::        Customized views
@@ -586,14 +583,16 @@ MY PROJECTS    -*- mode: org; -*-
 the file's name is.  See also the variable
 @code{org-insert-mode-line-in-empty-file}.
 
-Many commands in Org work on the region if the region is active.  To make use
-of this, you need to have @code{transient-mark-mode} (@code{zmacs-regions} in
-XEmacs) turned on.  In Emacs 23 this is the default, in Emacs 22 you need to
-do this yourself with
-
+Many commands in Org work on the region if the region is @i{active}.  To make
+use of this, you need to have @code{transient-mark-mode}
+(@code{zmacs-regions} in XEmacs) turned on.  In Emacs 23 this is the default,
+in Emacs 22 you need to do this yourself with
 @lisp
 (transient-mark-mode 1)
 @end lisp
+@noindent If you do not like @code{transient-make-mode}, you can create an
+active region by using the mouse to select a region, or pressing
+@kbd{C-@key{SPC}} twice before moving the cursor.
 
 @node Feedback, Conventions, Activation, Introduction
 @section Feedback
@@ -632,15 +631,14 @@ error occurred.  Here is how to produce a useful backtrace:
 
 @enumerate
 @item
-Start a fresh Emacs or XEmacs, and make sure that it will load the
-original Lisp code in @file{org.el} instead of the compiled version in
-@file{org.elc}.  The backtrace contains much more information if it is
-produced with uncompiled code.  To do this, either rename @file{org.elc}
-to something else before starting Emacs, or ask Emacs explicitly to load
-@file{org.el} by using the command line
+Reload uncompiled versions of all Org-mode lisp files.  The backtrace
+contains much more information if it is produced with uncompiled code.
+To do this, use
 @example
-emacs -l /path/to/org.el
+C-u M-x org-reload RET
 @end example
+or select @code{Org -> Refresh/Reload -> Reload Org uncompiled} from the
+menu.
 @item
 Go to the @code{Options} menu and select @code{Enter Debugger on Error}
 (XEmacs has this option in the @code{Troubleshooting} sub-menu).
@@ -895,7 +893,7 @@ u            @r{One level up.}
 q            @r{Quit}
 @end example
 @vindex org-goto-interface
-See also the variable@code{org-goto-interface}.
+See also the variable @code{org-goto-interface}.
 @end table
 
 @node Structure editing, Archiving, Motion, Document Structure
@@ -1402,12 +1400,13 @@ look like this:
    After the drawer.
 @end example
 
-Visibility cycling (@pxref{Visibility cycling}) on the headline will
-hide and show the entry, but keep the drawer collapsed to a single line.
-In order to look inside the drawer, you need to move the cursor to the
-drawer line and press @key{TAB} there.  Org mode uses a drawer for
-storing properties (@pxref{Properties and Columns}), and another one for
-storing clock times (@pxref{Clocking work time}).
+Visibility cycling (@pxref{Visibility cycling}) on the headline will hide and
+show the entry, but keep the drawer collapsed to a single line.  In order to
+look inside the drawer, you need to move the cursor to the drawer line and
+press @key{TAB} there.  Org mode uses the @code{PROPERTIES} drawer for
+storing properties (@pxref{Properties and Columns}), and you can also arrange
+for state change notes @pxref{Tracking TODO state changes} and clock times
+(@pxref{Clocking work time}) to be stored in a drawer @code{LOGBOOK}.
 
 @node Footnotes, Orgstruct mode, Drawers, Document Structure
 @section Footnotes
@@ -1445,7 +1444,7 @@ A LaTeX-like anonymous footnote where the definition is given directly at the
 reference point.
 @item [fn:name: a definition]
 An inline definition of a footnote, which also specifies a name for the note.
-Since Org allows multiple references to the same note, you can then use use
+Since Org allows multiple references to the same note, you can then use
 @code{[fn:name]} to create additional references.
 @end table
 
@@ -1509,22 +1508,24 @@ you can use the usual commands to follow these links.
 @cindex minor mode for structure editing
 
 If you like the intuitive way the Org mode structure editing and list
-formatting works, you might want to use these commands in other modes
-like Text mode or Mail mode as well.  The minor mode Orgstruct mode
-makes this possible.  You can always toggle the mode with @kbd{M-x
-orgstruct-mode}.  To turn it on by default, for example in Mail mode,
-use
+formatting works, you might want to use these commands in other modes like
+Text mode or Mail mode as well.  The minor mode @code{orgstruct-mode} makes
+this possible.   Toggle the mode with @kbd{M-x orgstruct-mode}, or
+turn it on by default, for example in Mail mode, with one of:
 
 @lisp
 (add-hook 'mail-mode-hook 'turn-on-orgstruct)
+(add-hook 'mail-mode-hook 'turn-on-orgstruct++)
 @end lisp
 
-When this mode is active and the cursor is on a line that looks to
-Org like a headline of the first line of a list item, most
-structure editing commands will work, even if the same keys normally
-have different functionality in the major mode you are using.  If the
-cursor is not in one of those special lines, Orgstruct mode lurks
-silently in the shadow.
+When this mode is active and the cursor is on a line that looks to Org like a
+headline or the first line of a list item, most structure editing commands
+will work, even if the same keys normally have different functionality in the
+major mode you are using.  If the cursor is not in one of those special
+lines, Orgstruct mode lurks silently in the shadow.  When you use
+@code{orgstruct++-mode}, Org will also export indentation and autofill
+settings into that mode, and detect item context after the first line of an
+item.
 
 @node Tables, Hyperlinks, Document Structure, Top
 @chapter Tables
@@ -2784,7 +2785,7 @@ the current URL.  For IRC links, if you set the variable
 @code{org-irc-link-to-logs} to non-nil then @kbd{C-c l} will store a
 @samp{file:/} style link to the relevant point in the logs for the current
 conversation.  Otherwise an @samp{irc:/} style link to the user/channel/server
-under the point will be stored. 
+under the point will be stored.
 
 For any other files, the link will point to the file, with a search string
 (@pxref{Search options}) pointing to the contents of the current line.  If
@@ -2932,9 +2933,10 @@ abbreviated link looks like this
 
 @noindent
 @vindex org-link-abbrev-alist
-where the tag is optional.  Such abbreviations are resolved according to
-the information in the variable @code{org-link-abbrev-alist} that
-relates the linkwords to replacement text.  Here is an example:
+where the tag is optional.  The @i{linkword} must be a word; letter, numbers,
+@samp{-}, and @samp{_} are allowed here.  Abbreviations are resolved
+according to the information in the variable @code{org-link-abbrev-alist}
+that relates the linkwords to replacement text.  Here is an example:
 
 @lisp
 @group
@@ -3114,13 +3116,14 @@ with @code{shift-selection-mode}.
 @item C-c C-v
 @itemx C-c / t
 @vindex org-todo-keywords
-View TODO items in a @emph{sparse tree} (@pxref{Sparse trees}).  Folds
-the entire buffer, but shows all TODO items and the headings hierarchy
-above them.  With a prefix argument, search for a specific TODO.  You will be
+View TODO items in a @emph{sparse tree} (@pxref{Sparse trees}).  Folds the
+entire buffer, but shows all TODO items and the headings hierarchy above
+them.  With a prefix argument, search for a specific TODO.  You will be
 prompted for the keyword, and you can also give a list of keywords like
-@code{KWD1|KWD2|...}.  With numeric prefix argument N, show the tree for the
-Nth keyword in the variable @code{org-todo-keywords}.  With two prefix
-arguments, find all TODO and DONE entries.
+@code{KWD1|KWD2|...} to list entries that match any one of these keywords.
+With numeric prefix argument N, show the tree for the Nth keyword in the
+variable @code{org-todo-keywords}.  With two prefix arguments, find all TODO
+and DONE entries.
 @kindex C-c a t
 @item C-c a t
 Show the global TODO list.  Collects the TODO items from all agenda
@@ -3866,6 +3869,17 @@ in a specific file, add an empty TAGS option line to that file:
 #+TAGS:
 @end example
 
+@vindex org-tag-persistent-alist
+If you have a preferred set of tags that you would like to use in every file,
+in addition to those defined on a per file basis by TAGS option lines, then
+you may specify a list of tags with the variable
+@code{org-tag-persistent-alist}.  You may turn this off on a per file basis
+by adding a STARTUP option line to that file:
+
+@example
+#+STARTUP: noptag
+@end example
+
 By default Org mode uses the standard minibuffer completion facilities for
 entering tags.  However, it also implements another, quicker, tag selection
 method called @emph{fast tag selection}.  This allows you to select and
@@ -3998,9 +4012,9 @@ information into special lists.
 
 @table @kbd
 @kindex C-c \
-@kindex C-c / T
+@kindex C-c / m
 @item C-c \
-@itemx C-c / T
+@itemx C-c / m
 Create a sparse tree with all headlines matching a tags search.  With a
 @kbd{C-u} prefix argument, ignore headlines that are not a TODO line.
 @kindex C-c a m
@@ -4015,82 +4029,14 @@ only TODO items and force checking subitems (see variable
 @code{org-tags-match-list-sublevels}).
 @end table
 
-@cindex Boolean logic, for tag searches
-A @i{tags} search string can use Boolean operators @samp{&} for AND and
-@samp{|} for OR.  @samp{&} binds more strongly than @samp{|}.
-Parenthesis are currently not implemented.  A tag may also be preceded
-by @samp{-}, to select against it, and @samp{+} is syntactic sugar for
-positive selection.  The AND operator @samp{&} is optional when @samp{+}
-or @samp{-} is present.  Examples:
+These commands all prompt for a match string which allows basic Boolean logic
+like @samp{+boss+urgent-project1}, to find entries with tags @samp{boss} and
+@samp{urgent}, but not @samp{project1}, or @samp{Kathy|Sally} to find entries
+which are tagged @samp{Kathy} or @samp{Sally}.  The full syntax of the search
+string is rich and allows also matching against TODO keywords, entry levels
+and properties.  For a complete description with many examples, see
+@ref{Matching tags and properties}.
 
-@table @samp
-@item +work-boss
-Select headlines tagged @samp{:work:}, but discard those also tagged
-@samp{:boss:}.
-@item work|laptop
-Selects lines tagged @samp{:work:} or @samp{:laptop:}.
-@item work|laptop&night
-Like before, but require the @samp{:laptop:} lines to be tagged also
-@samp{:night:}.
-@end table
-
-@cindex TODO keyword matching, with tags search
-You may also test for TODO keywords (@pxref{TODO extensions}) and properties
-(@pxref{Properties and Columns}) at the same time as matching tags.  For a
-guide on how to match properties, see @ref{Property searches}.  To match a
-specific TODO keyword, include an expression like @samp{+TODO="NEXT"} as one
-of the terms in a tags search.
-
-There is also the possibility to end the tags part of the match (which may
-include several terms connected with @samp{|}) with a @samp{/} and then
-specify a Boolean expression just for TODO keywords.  The syntax is then
-similar to the tag matches, but should be applied with consideration: For
-example, a positive selection on several TODO keywords can not meaningfully
-be combined with boolean AND.  However, @emph{negative selection} combined
-with AND can be meaningful.  To make sure that only lines are checked that
-actually have any TODO keyword (resulting in a speed-up), use @kbd{C-c a M},
-or equivalently start the TODO part after the slash with @samp{!}.  Examples:
-
-@table @samp
-@item work+TODO="WAITING"
-Select @samp{:work:}-tagged TODO lines with the specific TODO
-keyword @samp{WAITING}.
-@item work+TODO="WAITING"|home+TODO="WAITING"
-Waiting tasks both at work and at home.
-@item work/WAITING
-Same as the first example.
-@item work/!-WAITING-NEXT
-Select @samp{:work:}-tagged TODO lines that are neither @samp{WAITING}
-nor @samp{NEXT}
-@item work/!+WAITING|+NEXT
-Select @samp{:work:}-tagged TODO lines that are either @samp{WAITING} or
-@samp{NEXT}.
-@end table
-
-@cindex regular expressions, with tags search
-Any element of the tag/todo match can be a regular expression - in this
-case it must be enclosed in curly braces.  For example,
-@samp{work+@{^boss.*@}} matches headlines that contain the tag
-@samp{:work:} and any tag @i{starting} with @samp{boss}.  You may also use a
-regular expression in @samp{TODO=@{^W@}} which would match TODO keywords
-starting with the letter @samp{W}.
-
-@cindex level, require for tags/property match
-@cindex category, require for tags/property match
-@vindex org-odd-levels-only
-You can also require a headline to be of a certain level or category, by
-tapping into the syntax of property searches (@pxref{Property searches})
-and writing instead of any TAG an expression like @samp{LEVEL=3} or
-@samp{CATEGORY="work"}, respectively.  For example, a search
-@samp{+LEVEL=3+boss/-DONE} lists all level three headlines that have the
-tag @samp{boss} and are @emph{not} marked with the TODO keyword DONE.
-In buffers with @code{org-odd-levels-only} set, @samp{LEVEL} does not
-count the number of stars, but @samp{LEVEL=2} will correspond to 3 stars
-etc.
-
-Accessing TODO, LEVEL, and CATEGORY during a search is fast.  Accessing any
-other properties will slow down the search for the first property
-accessed.  Any additional property tests are cheap.
 
 @node Properties and Columns, Dates and Times, Tags, Top
 @chapter Properties and Columns
@@ -4139,7 +4085,7 @@ first, and the value after it.  Here is an example:
     :Title:     Goldberg Variations
     :Composer:  J.S. Bach
     :Artist:    Glen Gould
-    :Publisher: Deutsche Grammphon
+    :Publisher: Deutsche Grammophon
     :NDisks:    1
     :END:
 @end example
@@ -4222,9 +4168,11 @@ used as keys in the properties drawer:
 TODO         @r{The TODO keyword of the entry.}
 TAGS         @r{The tags defined directly in the headline.}
 ALLTAGS      @r{All tags, including inherited ones.}
+CATEGORY     @r{The category of an entry.}
 PRIORITY     @r{The priority of the entry, a string with a single letter.}
 DEADLINE     @r{The deadline time string, without the angular brackets.}
 SCHEDULED    @r{The scheduling time stamp, without the angular brackets.}
+CLOSED       @r{When was this entry closed?}
 TIMESTAMP    @r{The first keyword-less time stamp in the entry.}
 TIMESTAMP_IA @r{The first inactive time stamp in the entry.}
 CLOCKSUM     @r{The sum of CLOCK intervals in the subtree.  @code{org-clock-sum}}
@@ -4237,51 +4185,28 @@ CLOCKSUM     @r{The sum of CLOCK intervals in the subtree.  @code{org-clock-sum}
 @cindex searching, of properties
 
 To create sparse trees and special lists with selection based on properties,
-the same commands are used as for tag searches (@pxref{Tag searches}), and
-the same logic applies.  For example, here is a search string:
+the same commands are used as for tag searches (@pxref{Tag searches}).
+@table @kbd
+@kindex C-c \
+@kindex C-c / m
+@item C-c \
+@itemx C-c / m
+Create a sparse tree with all matching entries.  With a
+@kbd{C-u} prefix argument, ignore headlines that are not a TODO line.
+@kindex C-c a m
+@item C-c a m
+Create a global list of tag/property  matches from all agenda files.
+@xref{Matching tags and properties}.
+@kindex C-c a M
+@item C-c a M
+@vindex org-tags-match-list-sublevels
+Create a global list of tag matches from all agenda files, but check
+only TODO items and force checking subitems (see variable
+@code{org-tags-match-list-sublevels}).
+@end table
 
-@example
-+work-boss+PRIORITY="A"+Coffee="unlimited"+Effort<2         \
-         +With=@{Sarah\|Denny@}+SCHEDULED>="<2008-10-11>"
-@end example
-
-@noindent
-The type of comparison will depend on how the comparison value is written:
-@itemize @minus
-@item
-If the comparison value is a plain number, a numerical comparison is done,
-and the allowed operators are @samp{<}, @samp{=}, @samp{>}, @samp{<=},
-@samp{>=}, and @samp{<>}.
-@item
-If the comparison value is enclosed in double
-quotes, a string comparison is done, and the same operators are allowed.
-@item
-If the comparison value is enclosed in double quotes @emph{and} angular
-brackets (like @samp{DEADLINE<="<2008-12-24 18:30>"}), both values are
-assumed to be date/time specifications in the standard Org way, and the
-comparison will be done accordingly.  Special values that will be recognized
-are @code{"<now>"} for now (including time), and @code{"<today>"}, and
-@code{"<tomorrow>"} for these days at 0:00 hours, i.e. without a time
-specification.  Also strings like @code{"<+5d>"} or @code{"<-2m>"} with units
-@code{d}, @code{w}, @code{m}, and @code{y} for day, week, month, and year,
-respectively, can be used.
-@item
-If the comparison value is enclosed
-in curly braces, a regexp match is performed, with @samp{=} meaning that the
-regexp matches the property value, and @samp{<>} meaning that it does not
-match.
-@end itemize
-
-So the search string in the example finds entries tagged @samp{:work:} but
-not @samp{:boss:}, which also have a priority value @samp{A}, a
-@samp{:Coffee:} property with the value @samp{unlimited}, an @samp{Effort}
-property that is numerically smaller than 2, a @samp{:With:} property that is
-matched by the regular expression @samp{Sarah\|Denny}, and that are scheduled
-on or after October 11, 2008.
-
-You can configure Org mode to use property inheritance during a search, but
-beware that this can slow down searches considerably.  See @ref{Property
-inheritance} for details.
+The syntax for the search string is described in @ref{Matching tags and
+properties}.
 
 There is also a special command for creating sparse trees based on a
 single property:
@@ -4596,6 +4521,14 @@ instructions in front of the table - these will survive an update of the
 block.  If there is a @code{#+TBLFM:} after the table, the table will
 actually be recalculated automatically after an update.
 
+An alternative way to capture and process property values into a table is
+provided by Eric Schulte's @file{org-collector.el} which is a contributed
+package@footnote{Contributed packages are not part of Emacs, but are
+distributed with the main distribution of Org (see
+@uref{http://orgmode.org}).}.  It provides a general API to collect
+properties from entries in a certain scope, and arbitrary Lisp expressions to
+process these values before inserting them into a table or a dynamic block.
+
 @node Property API,  , Column view, Properties and Columns
 @section The Property API
 @cindex properties, API
@@ -4723,17 +4656,19 @@ at an existing time stamp in the buffer, the command is used to modify this
 timestamp instead of inserting a new one.  When this command is used twice in
 succession, a time range is inserted.
 @c
-@kindex C-u C-c .
-@item C-u C-c .
-@vindex org-time-stamp-rounding-minutes
-Like @kbd{C-c .}, but use the alternative format which contains date
-and time.  The default time can be rounded to multiples of 5 minutes,
-see the option @code{org-time-stamp-rounding-minutes}.
-@c
 @kindex C-c !
 @item C-c !
 Like @kbd{C-c .}, but insert an inactive time stamp that will not cause
 an agenda entry.
+@c
+@kindex C-u C-c .
+@kindex C-u C-c !
+@item C-u C-c .
+@itemx C-u C-c !
+@vindex org-time-stamp-rounding-minutes
+Like @kbd{C-c .} and @kbd{C-c !}, but use the alternative format which
+contains date and time.  The default time can be rounded to multiples of 5
+minutes, see the option @code{org-time-stamp-rounding-minutes}.
 @c
 @kindex C-c <
 @item C-c <
@@ -6049,17 +5984,53 @@ will be made in the agenda:
 %%(diary-anniversary  2 10 1869) Mahatma Gandhi would be %d years old
 @end example
 
+@subsubheading Anniversaries from BBDB
+@cindex BBDB, anniversaries
+@cindex anniversaries, from BBDB
+
+If you are using the Big Brothers Database to store your contacts, you will
+very likely prefer to store anniversaries in BBDB rather than in a
+separate Org or diary file.  Org supports this and will show BBDB
+anniversaries as part of the agenda.  All you need to do is to add the
+following to one your your agenda files:
+
+@example
+* Anniversaries
+  :PROPERTIES:
+  :CATEGORY: Anniv
+  :END
+%%(org-bbdb-anniversaries)
+@end example
+
+You can then go ahead and define anniversaries for a BBDB record.  Basically,
+you need to press @kbd{C-o anniversary @key{RET}} with the cursor in a BBDB
+record and then add the date in the format @code{YYYY-MM-DD}, followed by a
+space and the class of the anniversary (@samp{birthday} or @samp{wedding}, or
+a format string).  If you omit the class, it will default to @samp{birthday}.
+Here are a few examples, the header for the file @file{org-bbdb.el} contains
+more detailed information.
+
+@example
+1973-06-22
+1955-08-02 wedding
+2008-04-14 %s released version 6.01 of Org-mode, %d years ago
+@end example
+
+After a change to BBDB, or for the first agenda display during an Emacs
+session, the agenda display will suffer a short delay as Org updates it's
+hash with anniversaries.  However, from then on things will be very fast -
+much faster in fact than a long list of @samp{%%(diary-anniversary)} entries
+in an Org or Diary file.
+
 @subsubheading Appointment reminders
 @cindex @file{appt.el}
 @cindex appointment reminders
 
-Org can interact with Emacs appointments notification facility.
-
-To add all the appointments of your agenda files, use the command
-@code{org-agenda-to-appt}.  This commands also lets you filter through
-the list of your appointments and add only those belonging to a specific
-category or matching a regular expression. See the docstring for
-details.
+Org can interact with Emacs appointments notification facility.  To add all
+the appointments of your agenda files, use the command
+@code{org-agenda-to-appt}.  This commands also lets you filter through the
+list of your appointments and add only those belonging to a specific category
+or matching a regular expression. See the docstring for details.
 
 @node Global TODO list, Matching tags and properties, Weekly/daily agenda, Built-in agenda views
 @subsection The global TODO list
@@ -6129,9 +6100,11 @@ and omit the sublevels from the global list.  Configure the variable
 @cindex tags view
 @cindex match view
 
-If headlines in the agenda files are marked with @emph{tags}
-(@pxref{Tags}), you can select headlines based on the tags that apply
-to them and collect them into an agenda buffer.
+If headlines in the agenda files are marked with @emph{tags} (@pxref{Tags}),
+or have properties @pxref{Properties and Columns}, you can select headlines
+based on this meta data and collect them into an agenda buffer.  The match
+syntax described here also applies when creating sparse trees with @kbd{C-c /
+m}.
 
 @table @kbd
 @kindex C-c a m
@@ -6154,6 +6127,132 @@ keywords together with a tags match is also possible, see @ref{Tag searches}.
 
 The commands available in the tags list are described in @ref{Agenda
 commands}.
+
+@subsubheading Match syntax
+
+@cindex Boolean logic, for tag/property searches
+A search string can use Boolean operators @samp{&} for AND and @samp{|} for
+OR.  @samp{&} binds more strongly than @samp{|}.  Parenthesis are currently
+not implemented.  Each element in the search is either a tag, a regular
+rexpression matching tags, or an expression like @code{PROPERTY OPERATOR
+VALUE} with a comparison operator, accessing a property value.  Each element
+may be preceded by @samp{-}, to select against it, and @samp{+} is syntactic
+sugar for positive selection.  The AND operator @samp{&} is optional when
+@samp{+} or @samp{-} is present.  Here are some examples, using only tags.
+
+@table @samp
+@item +work-boss
+Select headlines tagged @samp{:work:}, but discard those also tagged
+@samp{:boss:}.
+@item work|laptop
+Selects lines tagged @samp{:work:} or @samp{:laptop:}.
+@item work|laptop+night
+Like before, but require the @samp{:laptop:} lines to be tagged also
+@samp{:night:}.
+@end table
+
+@cindex regular expressions, with tags search
+Instead of a tag, you may also specify a regular expression enclosed in curly
+braces.  For example,
+@samp{work+@{^boss.*@}} matches headlines that contain the tag
+@samp{:work:} and any tag @i{starting} with @samp{boss}.
+
+@cindex TODO keyword matching, with tags search
+@cindex level, require for tags/property match
+@cindex category, require for tags/property match
+@vindex org-odd-levels-only
+You may also test for properties (@pxref{Properties and Columns}) at the same
+time as matching tags.  The properties may be real properties, or special
+properties that represent other meta data (@pxref{Special properties}).  For
+example, the ``property'' @code{TODO} represents the TODO keyword of the
+entry.  Or, the ``property'' @code{LEVEL} represents the level of an entry.
+So a search @samp{+LEVEL=3+boss-TODO="DONE"} lists all level three headlines
+that have the tag @samp{boss} and are @emph{not} marked with the TODO keyword
+DONE.  In buffers with @code{org-odd-levels-only} set, @samp{LEVEL} does not
+count the number of stars, but @samp{LEVEL=2} will correspond to 3 stars etc.
+
+Here are more examples:
+@table @samp
+@item work+TODO="WAITING"
+Select @samp{:work:}-tagged TODO lines with the specific TODO
+keyword @samp{WAITING}.
+@item work+TODO="WAITING"|home+TODO="WAITING"
+Waiting tasks both at work and at home.
+@end table
+
+When matching properties, a number of different operaors can be used to test
+the value of a property.  Here is a complex example:
+
+@example
++work-boss+PRIORITY="A"+Coffee="unlimited"+Effort<2         \
+         +With=@{Sarah\|Denny@}+SCHEDULED>="<2008-10-11>"
+@end example
+
+@noindent
+The type of comparison will depend on how the comparison value is written:
+@itemize @minus
+@item
+If the comparison value is a plain number, a numerical comparison is done,
+and the allowed operators are @samp{<}, @samp{=}, @samp{>}, @samp{<=},
+@samp{>=}, and @samp{<>}.
+@item
+If the comparison value is enclosed in double
+quotes, a string comparison is done, and the same operators are allowed.
+@item
+If the comparison value is enclosed in double quotes @emph{and} angular
+brackets (like @samp{DEADLINE<="<2008-12-24 18:30>"}), both values are
+assumed to be date/time specifications in the standard Org way, and the
+comparison will be done accordingly.  Special values that will be recognized
+are @code{"<now>"} for now (including time), and @code{"<today>"}, and
+@code{"<tomorrow>"} for these days at 0:00 hours, i.e. without a time
+specification.  Also strings like @code{"<+5d>"} or @code{"<-2m>"} with units
+@code{d}, @code{w}, @code{m}, and @code{y} for day, week, month, and year,
+respectively, can be used.
+@item
+If the comparison value is enclosed
+in curly braces, a regexp match is performed, with @samp{=} meaning that the
+regexp matches the property value, and @samp{<>} meaning that it does not
+match.
+@end itemize
+
+So the search string in the example finds entries tagged @samp{:work:} but
+not @samp{:boss:}, which also have a priority value @samp{A}, a
+@samp{:Coffee:} property with the value @samp{unlimited}, an @samp{Effort}
+property that is numerically smaller than 2, a @samp{:With:} property that is
+matched by the regular expression @samp{Sarah\|Denny}, and that are scheduled
+on or after October 11, 2008.
+
+Accessing TODO, LEVEL, and CATEGORY during a search is fast.  Accessing any
+other properties will slow down the search.  However, once you have payed the
+price by accessig one property, testing additional properties is cheap
+again.
+
+You can configure Org mode to use property inheritance during a search, but
+beware that this can slow down searches considerably.  See @ref{Property
+inheritance} for details.
+
+For backward compatibility, and also for typing speed, there is also a
+different way to test TODO states in a search.  For this, terminalte the
+tags/property part of the search string (which may include several terms
+connected with @samp{|}) with a @samp{/} and then specify a Boolean
+expression just for TODO keywords.  The syntax is then similar to that for
+tags, but should be applied with consideration: For example, a positive
+selection on several TODO keywords can not meaningfully be combined with
+boolean AND.  However, @emph{negative selection} combined with AND can be
+meaningful.  To make sure that only lines are checked that actually have any
+TODO keyword (resulting in a speed-up), use @kbd{C-c a M}, or equivalently
+start the TODO part after the slash with @samp{!}.  Examples:
+
+@table @samp
+@item work/WAITING
+Same as @samp{work+TODO="WAITING"}
+@item work/!-WAITING-NEXT
+Select @samp{:work:}-tagged TODO lines that are neither @samp{WAITING}
+nor @samp{NEXT}
+@item work/!+WAITING|+NEXT
+Select @samp{:work:}-tagged TODO lines that are either @samp{WAITING} or
+@samp{NEXT}.
+@end table
 
 @node Timeline, Keyword search, Matching tags and properties, Built-in agenda views
 @subsection Timeline for a single file
@@ -6559,10 +6658,14 @@ that entry would be in the original buffer (taken from a property, from a
 
 @kindex /
 @item /
+@vindex org-agenda-filter-preset
 Filter the current agenda view with respect to a tag and/or effort estimates.
-The difference between this and a custom agenda commands is that filtering is
+The difference between this and a custom agenda command is that filtering is
 very fast, so that you can switch quickly between different filters without
-having to recreate the agenda.
+having to recreate the agenda@footnote{Custom commands can preset a filter by
+binding the variable @code{org-agenda-filter-preset} as an option.  This
+filter will then be applied to the view and presist as a basic filter through
+refreshes and more secondary filtering.}
 
 You will be prompted for a tag selection letter.  Pressing @key{TAB} at that
 prompt will offer use completion to select a tag (including any tags that do
@@ -6803,12 +6906,12 @@ This is a globally available command, and also available in the agenda menu.
 @cindex exporting agenda views
 @cindex agenda views, exporting
 @vindex org-agenda-exporter-settings
-Write the agenda view to a file.  Depending on the extension of the
-selected file name, the view will be exported as HTML (extension
-@file{.html} or @file{.htm}), Postscript (extension @file{.ps}), or
-plain text (any other extension).  Use the variable
-@code{org-agenda-exporter-settings} to set options for @file{ps-print}
-and for @file{htmlize} to be used during export.
+Write the agenda view to a file.  Depending on the extension of the selected
+file name, the view will be exported as HTML (extension @file{.html} or
+@file{.htm}), Postscript (extension @file{.ps}), PDF
+(extension @file{.pdf}), or plain text (any other extension).  Use the
+variable @code{org-agenda-exporter-settings} to set options for
+@file{ps-print} and for @file{htmlize} to be used during export.
 
 @tsubheading{Quit and Exit}
 @kindex q
@@ -7023,8 +7126,10 @@ yourself.
 If you are away from your computer, it can be very useful to have a printed
 version of some agenda views to carry around.  Org mode can export custom
 agenda views as plain text, HTML@footnote{You need to install Hrvoje Niksic's
-@file{htmlize.el}.}, Postscript, and iCalendar files.  If you want to do this
-only occasionally, use the command
+@file{htmlize.el}.}, Postscript, PDF@footnote{To create PDF output, the
+ghostscript @file{ps2pdf} utility must be installed on the system.  Selecting
+a pdf file with also create the postscript file.}, and iCalendar files.  If
+you want to do this only occasionally, use the command
 
 @table @kbd
 @kindex C-x C-w
@@ -7040,10 +7145,15 @@ Use the variable @code{org-agenda-exporter-settings} to
 set options for @file{ps-print} and for @file{htmlize} to be used during
 export, for example
 
+@vindex org-agenda-add-entry-text-maxlines
+@vindex htmlize-output-type
+@vindex ps-number-of-columns
+@vindex ps-landscape-mode
 @lisp
 (setq org-agenda-exporter-settings
       '((ps-number-of-columns 2)
         (ps-landscape-mode t)
+        (org-agenda-add-entry-text-maxlines 5)
         (htmlize-output-type 'css)))
 @end lisp
 @end table
@@ -7231,7 +7341,6 @@ For example, here is a Perl program that gets the TODO list from
 Emacs/Org and prints all the items, preceded by a checkbox:
 
 @example
-@group
 #!/usr/bin/perl
 
 # define the Emacs command to run
@@ -7242,15 +7351,12 @@ $agenda = qx@{$cmd 2>/dev/null@};
 
 # loop over all lines
 foreach $line (split(/\n/,$agenda)) @{
-
   # get the individual values
   ($category,$head,$type,$todo,$tags,$date,$time,$extra,
    $priority_l,$priority_n) = split(/,/,$line);
-
   # process and print
   print "[ ] $head\n";
 @}
-@end group
 @end example
 
 @node Agenda column view,  , Custom agenda views, Agenda Views
@@ -7576,11 +7682,12 @@ markup rule used in an Org mode buffer.
 * Include files::               Include the contents of a file during export
 * Tables exported::             Tables are exported richly
 * Inlined images::              How to inline images during export
-* Footnote markup::             
+* Footnote markup::             ASCII representation of footnotes
 * Emphasis and monospace::      To bold or not to bold
 * TeX macros and LaTeX fragments::  Create special, rich export.
 * Horizontal rules::            A line across the page
 * Comment lines::               Some lines will not be exported
+* Macro replacement::           Global replacement of place holdes
 @end menu
 
 @node Document title, Headings and sections, Markup rules, Markup rules
@@ -7927,7 +8034,7 @@ different lengths or a compact set of dots.
 A line consisting of only dashes, and at least 5 of them, will be
 exported as a horizontal line (@samp{<hr/>} in HTML).
 
-@node Comment lines,  , Horizontal rules, Markup rules
+@node Comment lines, Macro replacement, Horizontal rules, Markup rules
 @subheading Comment lines
 @cindex comment lines
 @cindex exporting, not
@@ -7942,6 +8049,20 @@ never be exported.  Also entire subtrees starting with the word
 @item C-c ;
 Toggle the COMMENT keyword at the beginning of an entry.
 @end table
+
+@node Macro replacement,  , Comment lines, Markup rules
+@subheading Macro replacement
+
+You can define text snippets with
+
+@example
+#+MACRO: name   replacement text
+@end example
+
+@noindent which can be referenced anywhere in the document (even in
+code examples) with @code{@{@{@{name@}@}@}}.  In addition to defined macros,
+@code{@{@{@{title@}@}@}}, @code{@{@{@{author@}@}@}}, etc will reference
+information set by the @code{#+TITLE:}, @code{#+AUTHOR:}, and similar lines.
 
 @node Selective export, Export options, Markup rules, Exporting
 @section Selective export
@@ -7988,6 +8109,8 @@ Insert template with export options, see example below.
 @cindex #+AUTHOR:
 @cindex #+DATE:
 @cindex #+EMAIL:
+@cindex #+DESCRIPTION:
+@cindex #+KEYWORDS:
 @cindex #+LANGUAGE:
 @cindex #+TEXT:
 @cindex #+OPTIONS:
@@ -8000,16 +8123,18 @@ Insert template with export options, see example below.
 @vindex user-mail-address
 @vindex org-export-default-language
 @example
-#+TITLE:     the title to be shown (default is the buffer name)
-#+AUTHOR:    the author (default taken from @code{user-full-name})
-#+DATE:      A date, fixed, of a format string for @code{format-time-string}
-#+EMAIL:     his/her email address (default from @code{user-mail-address})
-#+LANGUAGE:  language for HTML, e.g. @samp{en} (@code{org-export-default-language})
-#+TEXT:      Some descriptive text to be inserted at the beginning.
-#+TEXT:      Several lines may be given.
-#+OPTIONS:   H:2 num:t toc:t \n:nil @@:t ::t |:t ^:t f:t TeX:t ...
-#+LINK_UP:   the ``up'' link of an exported page
-#+LINK_HOME: the ``home'' link of an exported page
+#+TITLE:       the title to be shown (default is the buffer name)
+#+AUTHOR:      the author (default taken from @code{user-full-name})
+#+DATE:        a date, fixed, of a format string for @code{format-time-string}
+#+EMAIL:       his/her email address (default from @code{user-mail-address})
+#+DESCRIPTION: the page description, e.g. for the XHTML meta tag
+#+KEYWORDS:    the page keywords, e.g. for the XHTML meta tag
+#+LANGUAGE:    language for HTML, e.g. @samp{en} (@code{org-export-default-language})
+#+TEXT:        Some descriptive text to be inserted at the beginning.
+#+TEXT:        Several lines may be given.
+#+OPTIONS:     H:2 num:t toc:t \n:nil @@:t ::t |:t ^:t f:t TeX:t ...
+#+LINK_UP:     the ``up'' link of an exported page
+#+LINK_HOME:   the ``home'' link of an exported page
 #+LATEX_HEADER: extra line(s) for the LaTeX header, like \usepackage@{xyz@}
 #+EXPORT_SELECT_TAGS:   Tags that select a tree for export
 #+EXPORT_EXCLUDE_TAGS:  Tags that exclude a tree from export
@@ -8147,6 +8272,11 @@ the assumption that the first body line indicates the base indentation of
 the body text.  Any indentation larger than this is adjusted to preserve
 the layout relative to the first line.  Should there be lines with less
 indentation than the first, these are left alone.
+
+@vindex org-export-ascii-links-to-notes
+Links will be exported in a footnote-like style, with the descriptive part in
+the text and the link in a note before the next heading.  See the variable
+@code{org-export-ascii-links-to-notes} for details and other options.
 
 @node HTML export, LaTeX and PDF export, ASCII export, Exporting
 @section HTML export
@@ -8336,22 +8466,41 @@ respectively.  For example
 @cindex CSS, for HTML export
 @cindex HTML export, CSS
 
+@vindex org-export-html-todo-kwd-class-prefix
+@vindex org-export-html-tag-class-prefix
 You can also give style information for the exported file.  The HTML exporter
-assigns the following special CSS classes to appropriate parts of the
-document - your style specifications may change these, in addition to any of
-the standard classes like for headlines, tables etc.
+assigns the following special CSS classes@footnote{If the classes on TODO
+keywords and tags lead to conflicts, use the variables
+@code{org-export-html-todo-kwd-class-prefix} and
+@code{org-export-html-tag-class-prefix} to make them unique.} to appropriate
+parts of the document - your style specifications may change these, in
+addition to any of the standard classes like for headlines, tables etc.
 @example
+p.author           @r{author information, including email}
+p.date             @r{publishing date}
+p.creator          @r{creator info, about Org-mode version}
+.title             @r{document title}
 .todo              @r{TODO keywords, all not-done states}
 .done              @r{the DONE keywords, all stated the count as done}
-WAITING            @r{Each TODO keyword also uses a class named after itself}
+.WAITING           @r{each TODO keyword also uses a class named after itself}
 .timestamp         @r{time stamp}
 .timestamp-kwd     @r{keyword associated with a time stamp, like SCHEDULED}
 .tag               @r{tag in a headline}
+._HOME             @r{each tag uses itself as a class, "@@" replaced by "_"}
 .target            @r{target for links}
-div.figure         @r{how to format an inlined image}
 .linenr            @r{the line number in a code example}
 .code-highlighted  @r{for highlighting referenced code lines}
+div.outline-N      @r{div for outline level N (headline plus text))}
+div.outline-text-N @r{extra div for text at outline level N}
 .section-number-N  @r{section number in headlines, different for each level}
+div.figure         @r{how to format an inlined image}
+pre.src            @r{formatted source code}
+pre.example        @r{normal example}
+p.verse            @r{verse paragraph}
+div.footnotes      @r{footnote section headline}
+p.footnote         @r{footnote definition paragraph, containing a footnote}
+.footref           @r{a footnote reference number (always a <sup>)}
+.footnum           @r{footnote number in footnote definition (always <sup>)}
 @end example
 
 @vindex org-export-html-style-default
@@ -9118,7 +9267,7 @@ Org uses timestamps to track when a file has changed. The above
 functions normally only publish changed files. You can override this and
 force publishing of all files by giving a prefix argument.
 
-@node Miscellaneous, Extensions, Publishing, Top
+@node Miscellaneous, Hacking, Publishing, Top
 @chapter Miscellaneous
 
 @menu
@@ -9129,8 +9278,8 @@ force publishing of all files by giving a prefix argument.
 * Clean view::                  Getting rid of leading stars in the outline
 * TTY keys::                    Using Org on a tty
 * Interaction::                 Other Emacs packages
-* Bugs::                        Things which do not work perfectly
 @end menu
+
 
 @node Completion, Customization, Miscellaneous, Miscellaneous
 @section Completion
@@ -9383,7 +9532,10 @@ this file, and (potentially) the corresponding @emph{fast tag selection}
 keys.  The corresponding variable is @code{org-tag-alist}.
 @item #+TBLFM:
 This line contains the formulas for the table directly above the line.
-@item #+TITLE:, #+AUTHOR:, #+EMAIL:, #+LANGUAGE:, #+TEXT:, #+OPTIONS, #+DATE:
+@item #+TITLE:, #+AUTHOR:, #+EMAIL:, #+LANGUAGE:, #+TEXT:, #+OPTIONS, #+DATE:,
+@itemx #+DESCRIPTION:, #+KEYWORDS:
+@itemx #+LATEX_HEADER:, #+STYLE:, #+LINK_UP:, #+LINK_HOME:, 
+@itemx #+EXPORT_SELECT_TAGS:, #+EXPORT_EXCLUDE_TAGS:
 These lines provide settings for exporting files.  For more details see
 @ref{Export options}.
 @item #+TODO:    #+SEQ_TODO:   #+TYP_TODO:
@@ -9591,7 +9743,8 @@ tty you would rather use @kbd{C-c .} to re-insert the timestamp.
 @item @kbd{C-S-@key{right}} @tab @kbd{C-c C-x @key{right}} @tab
 @end multitable
 
-@node Interaction, Bugs, TTY keys, Miscellaneous
+
+@node Interaction,  , TTY keys, Miscellaneous
 @section Interaction with other packages
 @cindex packages, interaction with other
 Org lives in the world of GNU Emacs and interacts in various ways
@@ -9741,159 +9894,18 @@ in the paragraph above about CUA mode also applies here.
 
 @end table
 
-
-@node Bugs,  , Interaction, Miscellaneous
-@section Bugs
-@cindex bugs
-
-Here is a list of things that should work differently, but which I
-have found too hard to fix.
-
-@itemize @bullet
-@item
-If a table field starts with a link, and if the corresponding table
-column is narrowed (@pxref{Narrow columns}) to a width too small to
-display the link, the field would look entirely empty even though it is
-not.  To prevent this, Org throws an error.  The work-around is to
-make the column wide enough to fit the link, or to add some text (at
-least 2 characters) before the link in the same field.
-@item
-Narrowing table columns does not work on XEmacs, because the
-@code{format} function does not transport text properties.
-@item
-Text in an entry protected with the @samp{QUOTE} keyword should not
-autowrap.
-@item
-When the application called by @kbd{C-c C-o} to open a file link fails
-(for example because the application does not exist or refuses to open
-the file), it does so silently.  No error message is displayed.
-@item
-Recalculating a table line applies the formulas from left to right.
-If a formula uses @emph{calculated} fields further down the row,
-multiple recalculation may be needed to get all fields consistent.  You
-may use the command @code{org-table-iterate} (@kbd{C-u C-c *}) to
-recalculate until convergence.
-@item
-The exporters work well, but could be made more efficient.
-@end itemize
-
-
-@node Extensions, Hacking, Miscellaneous, Top
-@appendix Extensions
-
-This appendix lists the extension modules that have been written for Org.
-Many of these extensions live in the @file{contrib} directory of the Org
-distribution, others are available somewhere on the web.
-
-@menu
-* Extensions in the contrib directory::  These come with the Org distro
-* Other extensions::            These you have to find on the web.
-@end menu
-
-@node Extensions in the contrib directory, Other extensions, Extensions, Extensions
-@section Extensions in the @file{contrib} directory
-
-A number of extension are distributed with Org when you download it from its
-homepage.  Please note that these extensions are @emph{not} distributed as
-part of Emacs, so if you use Org as delivered with Emacs, you still need to
-go to @url{http://orgmode.org} to get access to these modules.
-
-@table @asis
-@item @file{org-annotate-file.el} by @i{Philip Jackson}
-Annotate a file with org syntax, in a separate file, with links back to the
-annotated file.
-
-@item @file{org-annotation-helper.el} by @i{Bastien Guerry and Daniel E. German}
-Call @i{remember} directly from Firefox/Opera, or from Adobe Reader.  When
-activating a special link or bookmark, Emacs receives a trigger to create a
-note with a link back to the website.  Requires some setup, a detailed
-description is in @file{contrib/packages/org-annotation-helper}.
-
-@item @file{org-bookmark.el} by @i{Tokuya Kameshima}
-Support for links to Emacs bookmarks.
-
-@item @file{org-depend.el} by @i{Carsten Dominik}
-TODO dependencies for Org-mode.  Make TODO state changes in one entry trigger
-changes in another, or be blocked by the state of another entry.  Also,
-easily create chains of TODO items with exactly one active item at any time.
-
-@item @file{org-elisp-symbol.el} by @i{Bastien Guerry}
-Org links to emacs-lisp symbols.  This can create annotated links that
-exactly point to the definition location of a variable of function.
-
-@item @file{org-eval.el} by @i{Carsten Dominik}
-The @code{<lisp>} tag, adapted from Emacs Wiki and Emacs Muse, allows text to
-be included in a document that is the result of evaluating some code.  Other
-scripting languages like @code{perl} can be supported with this package as
-well.
-
-@item @file{org-eval-light.el} by @i{Eric Schulte}
-User-controlled evaluation of code in an Org buffer.
-
-@item @file{org-exp-blocks.el} by @i{Eric Schulte}
-Preprocess user-defined blocks for export.
-
-@item @file{org-expiry.el} by @i{Bastien Guerry}
-Expiry mechanism for Org entries.
-
-@item @file{org-indent.el} by @i{Carsten Dominik}
-Dynamic indentation of Org outlines.  The plan is to indent an outline
-according to level, but so far this is too hard for a proper and stable
-implementation.  Still, it works somewhat.
-
-@item @file{org-interactive-query.el} by @i{Christopher League}
-Interactive modification of tags queries.  After running a general query in
-Org, this package allows you to narrow down the results by adding more tags
-or keywords.
-
-@item @file{org-mairix.el} by @i{Georg C. F. Greve}
-Hook mairix search into Org for different MUAs.
-
-@item @file{org-man.el} by @i{Carsten Dominik}
-Support for links to manpages in Org-mode.
-
-@item @file{org-mtags.el} by @i{Carsten Dominik}
-Support for some Muse-like tags in Org-mode.  This package allows you to
-write @code{<example>} and @code{<src>} and other syntax copied from Emacs
-Muse, right inside an Org file.  The goal here is to make it easy to publish
-the same file using either org-publish or Muse.
-
-@item @file{org-panel.el} by @i{Lennart Borgman}
-Simplified and display-aided access to some Org commands.
-
-@item @file{org-registry.el} by @i{Bastien Guerry}
-A registry for Org links, to find out from where links point to a given file
-or location.
-
-@item @file{org2rem.el} by @i{Bastien Guerry}
-Convert org appointments into reminders for the @file{remind} program.
-
-@item @file{org-screen.el} by @i{Andrew Hyatt}
-Visit screen sessions through Org-mode links.
-
-@item @file{org-toc.el} by @i{Bastien Guerry}
-Table of contents in a separate buffer, with fast access to sections and easy
-visibility cycling.
-
-@item @file{orgtbl-sqlinsert.el} by @i{Jason Riedy}
-Convert Org-mode tables to SQL insertions.  Documentation for this can be
-found on the Worg pages.
-
-@end table
-
-@node Other extensions,  , Extensions in the contrib directory, Extensions
-@section Other extensions
-
-@i{TO BE DONE}
-
-@node Hacking, History and Acknowledgments, Extensions, Top
+@node Hacking, History and Acknowledgments, Miscellaneous, Top
 @appendix Hacking
+@cindex hacking
 
 This appendix covers some aspects where users can extend the functionality of
 Org.
 
 @menu
+* Hooks::                       Who to reach into Org's internals
+* Add-on packages::             Available extensions
 * Adding hyperlink types::      New custom link types
+* Context-sensitive commands::  How to add functioality to such commands
 * Tables in arbitrary syntax::  Orgtbl for LaTeX and other programs
 * Dynamic blocks::              Automatically filled blocks
 * Special agenda views::        Customized views
@@ -9901,7 +9913,30 @@ Org.
 * Using the mapping API::       Mapping over all or selected entries
 @end menu
 
-@node Adding hyperlink types, Tables in arbitrary syntax, Hacking, Hacking
+@node Hooks, Add-on packages, Hacking, Hacking
+@section Hooks
+@cindex hooks
+
+Org has a large number of hook variables that can be used to add
+functionality to it.  This appendix about hacking is going to illustrate the
+use of some of them.  A complete list of all hooks with documentation is
+maintained by the worg project and can be found at
+@uref{http://orgmode.org/worg/org-configs/org-hooks.php}.
+
+@node Add-on packages, Adding hyperlink types, Hooks, Hacking
+@section Add-on packages
+@cindex add-on packages
+
+A large number of add-on packages have been written by various authors.
+These packages are not part of Emacs, but they are distributed as contributed
+packages with the separate release available at the Org-mode home page at
+@uref{http://orgmode.org}.  The list of contributed packages, along with
+documentation about each package, is maintained by the Worg project at
+@uref{http://orgmode.org/worg/org-contrib/}.
+
+
+
+@node Adding hyperlink types, Context-sensitive commands, Add-on packages, Hacking
 @section Adding hyperlink types
 @cindex hyperlinks, adding new types
 
@@ -9999,7 +10034,43 @@ can also set the @code{:description} property to provide a default for
 the link description when the link is later inserted into an Org
 buffer with @kbd{C-c C-l}.
 
-@node Tables in arbitrary syntax, Dynamic blocks, Adding hyperlink types, Hacking
+@node Context-sensitive commands, Tables in arbitrary syntax, Adding hyperlink types, Hacking
+@section Context-sensitive commands
+@cindex context-sensitive commands, hooks
+@cindex add-ons, context-sensitive commands
+@vindex org-ctrl-c-ctrl-c-hook
+
+Org has several commands that act differently depending on context.  The most
+important example it the @kbd{C-c C-c} (@pxref{The very busy C-c C-c key}).
+Also the @kbd{M-cursor} and @kbd{M-S-cursor} keys do have this property.
+
+Add-ons can tap into this functionality by providing a function that detects
+special context for that add-on and executes functionality appropriate for
+the context.  Here is an example from Dan Davison's @file{org-R.el} which
+allows to evaluate commands based on the @file{R} programming language.  For
+this package, special contexts are lines that start with @code{#+R:} or
+@code{#+RR:}.
+
+@lisp
+(defun org-R-apply-maybe ()
+  "Detect if this is context for org-R and execute R commands."
+  (if (save-excursion
+        (beginning-of-line 1)
+        (looking-at "#\\+RR?:"))
+      (progn (call-interactively 'org-R-apply)
+             t) ;; to signal that we took action
+    nil)) ;; to signal that we did not
+
+(add-hook 'org-ctrl-c-ctrl-c-hook 'org-R-apply-maybe)
+@end lisp
+
+The function first checks if the cursor is in such a line.  If that is the
+case, @code{org-R-apply} is called and the function returns @code{t} to
+signal that action was taken, and @kbd{C-c C-c} will stop looking for other
+contexts.  If the function finds it should do nothing locally, it returns @code{nil} so that other, similar functions can have a try.
+
+
+@node Tables in arbitrary syntax, Dynamic blocks, Context-sensitive commands, Hacking
 @section Tables and lists in arbitrary syntax
 @cindex tables, in other modes
 @cindex lists, in other modes
@@ -10597,7 +10668,7 @@ archive   @r{skip trees with the archive tag}
 comment   @r{skip trees with the COMMENT keyword}
 function or Lisp form
           @r{will be used as value for @code{org-agenda-skip-function},}
-          @r{so whenever the the function returns t, FUNC}
+          @r{so whenever the function returns t, FUNC}
           @r{will not be called for that entry and search will}
           @r{continue from the point where the function leaves it}
 @end example
@@ -10697,7 +10768,7 @@ Org-mode website.
 @item
 @i{Alex Bochannek} provided a patch for rounding time stamps.
 @item
-@i{Tom Breton} wrote @file{og-choose.el}.
+@i{Tom Breton} wrote @file{org-choose.el}.
 @item
 @i{Charles Cave}'s suggestion sparked the implementation of templates
 for Remember.
@@ -10787,6 +10858,9 @@ links, among other things.
 @item
 @i{Pete Phillips} helped during the development of the TAGS feature, and
 provided frequent feedback.
+@item
+@i{Martin Pohlack} provided the code snippet to bundle character insertion
+into bundles of 20 for undo.
 @item
 @i{T.V. Raman} reported bugs and suggested improvements.
 @item

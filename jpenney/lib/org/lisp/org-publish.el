@@ -4,7 +4,7 @@
 ;; Author: David O'Toole <dto@gnu.org>
 ;; Maintainer: Bastien Guerry <bzg AT altern DOT org>
 ;; Keywords: hypermedia, outlines, wp
-;; Version: 6.23
+;; Version: 6.24a
 
 ;; This file is part of GNU Emacs.
 ;;
@@ -469,13 +469,14 @@ matching filenames."
 	  include-list)
     org-publish-temp-files))
 
-(defun org-publish-get-project-from-filename (filename)
+(defun org-publish-get-project-from-filename (filename &optional up)
   "Return the project FILENAME belongs."
   (let* ((project-name (cdr (assoc (expand-file-name filename)
 				   org-publish-files-alist))))
-    (dolist (prj org-publish-project-alist)
-      (if (member project-name (plist-get (cdr prj) :components))
-	  (setq project-name (car prj))))
+    (when up
+      (dolist (prj org-publish-project-alist)
+	(if (member project-name (plist-get (cdr prj) :components))
+	    (setq project-name (car prj)))))
     (assoc project-name org-publish-project-alist)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -542,7 +543,9 @@ See `org-publish-org-to' to the list of arguments."
   ;; make sure eshell/cp code is loaded
   (unless (file-directory-p pub-dir)
     (make-directory pub-dir t))
-  (copy-file filename pub-dir t))
+  (or (equal (expand-file-name (file-name-directory filename))
+	     (file-name-as-directory (expand-file-name pub-dir)))
+      (copy-file filename pub-dir t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Publishing files, sets of files, and indices
@@ -742,7 +745,7 @@ the project."
   (interactive "P")
   (org-publish-initialize-files-alist)
   (save-window-excursion
-    (let ((project (org-publish-get-project-from-filename (buffer-file-name)))
+    (let ((project (org-publish-get-project-from-filename (buffer-file-name) 'up))
 	  (org-publish-use-timestamps-flag
 	   (if force nil org-publish-use-timestamps-flag)))
       (if (not project)

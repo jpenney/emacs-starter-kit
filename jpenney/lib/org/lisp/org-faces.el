@@ -6,7 +6,7 @@
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.23
+;; Version: 6.24a
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -321,6 +321,18 @@ list of attributes, like (:foreground \"blue\" :weight bold :underline t)."
   :type '(repeat
 	  (cons
 	   (string :tag "keyword")
+	   (sexp :tag "face"))))
+
+(defcustom org-priority-faces nil
+  "Faces for specific Priorities.
+This is a list of cons cells, with priority character in the car
+and faces in the cdr.  The face can be a symbol, or a property
+list of attributes, like (:foreground \"blue\" :weight bold :underline t)."
+  :group 'org-faces
+  :group 'org-todo
+  :type '(repeat
+	  (cons
+	   (character :tag "Priority")
 	   (sexp :tag "face"))))
 
 (defvar org-tags-special-faces-re nil)

@@ -6,7 +6,7 @@
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.23
+;; Version: 6.24a
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -444,12 +444,12 @@ the clocking selection, associated with the letter `d'."
 		(stringp org-clock-into-drawer)
 		(and (integerp org-clock-into-drawer)
 		     (< org-clock-into-drawer 2)))
+	(org-indent-line-function)
 	(insert ":" drawer ":\n:END:\n")
 	(beginning-of-line 0)
 	(org-indent-line-function)
 	(beginning-of-line 0)
 	(org-flag-drawer t)
-	(org-indent-line-function)
 	(beginning-of-line 2)
 	(or org-log-states-order-reversed
 	    (and (re-search-forward org-property-end-re nil t)
@@ -1076,10 +1076,10 @@ the currently selected interval size."
     (while (< ts te)
       (or (bolp) (insert "\n"))
       (setq p1 (plist-put p1 :tstart (format-time-string
-				      (car org-time-stamp-formats)
+				      (org-time-stamp-format nil t)
 				      (seconds-to-time ts))))
       (setq p1 (plist-put p1 :tend (format-time-string
-				    (car org-time-stamp-formats)
+				    (org-time-stamp-format nil t)
 				    (seconds-to-time (setq ts (+ ts step))))))
       (insert "\n" (if (eq step0 'day) "Daily report: " "Weekly report starting on: ")
 	      (plist-get p1 :tstart) "\n")

@@ -15,12 +15,14 @@ org-annotation-helper.el --- Call remember directly from Firefox/Opera
 org-bookmark.el          --- Links to bookmarks
 org-browser-url.el       --- Store links to webpages directly from Firefox/Opera
 org-choose.el            --- Use TODO keywords to mark decision states
+org-collector.el         --- Collect properties into tables
 org-depend.el            --- TODO dependencies for Org-mode
 org-elisp-symbol.el      --- Org links to emacs-lisp symbols
 org-eval.el              --- The <lisp> tag, adapted from Muse
 org-eval-light.el        --- Evaluate in-buffer code on demand
 org-expiry.el 	         --- Expiry mechanism for Org entries
-org-exp-blocks	         --- Pre-process blocks when exporting org files
+org-exp-bibtex.el        --- Export citations to LaTeX and HTML
+org-exp-blocks.el        --- Pre-process blocks when exporting org files
 org-indent.el            --- Dynamic outline indentation (does not really work)
 org-interactive-query.el --- Interactive modification of tags query
 org-mairix.el 	         --- Hook mairix search into Org for different MUAs

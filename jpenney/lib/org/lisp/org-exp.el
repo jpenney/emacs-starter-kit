@@ -6,7 +6,7 @@
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.23
+;; Version: 6.24a
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -31,7 +31,8 @@
 (eval-and-compile
   (require 'cl))
 
-(declare-function org-export-latex-preprocess "org-export-latex" ())
+(declare-function org-export-latex-preprocess "org-export-latex" (parameters))
+(declare-function org-export-docbook-preprocess "org-export-docbook" (parameters))
 (declare-function org-agenda-skip "org-agenda" ())
 (declare-function org-infojs-options-inbuffer-template "org-jsinfo" ())
 (declare-function htmlize-region "ext:htmlize" (beg end))
@@ -135,6 +136,16 @@ or use the +OPTION lines for a per-file setting."
 This should have an association in `org-export-language-setup'."
   :group 'org-export-general
   :type 'string)
+
+(defvar org-export-page-description ""
+  "The page description, for the XHTML meta tag.
+This is best set with the #+DESCRIPTION line in a file, it does not make
+sense to set this globally.")
+
+(defvar org-export-page-keywords ""
+  "The page description, for the XHTML meta tag.
+This is best set with the #+KEYWORDS line in a file, it does not make
+sense to set this globally.")
 
 (defcustom org-export-skip-text-before-1st-heading nil
   "Non-nil means, skip all text before the first headline when exporting.
@@ -498,6 +509,13 @@ Org-mode file."
   :group 'org-export-ascii
   :type '(repeat character))
 
+(defcustom org-export-ascii-links-to-notes t
+  "Non-nil means, convert links to notes before the next headline.
+When nil, the link will be exported in place.  If the line becomes long
+in this way, it will be wrapped."
+  :group 'org-export-ascii
+  :type 'boolean)
+
 (defgroup org-export-xml nil
   "Options specific for XML export of Org-mode files."
   :tag "Org Export XML"
@@ -528,6 +546,13 @@ Org-mode file."
   :group 'org-export-html
   :type '(string :tag "File or URL"))
 
+(defcustom org-export-html-style-include-scripts t
+  "Non-nil means, include the javascript snippets in exported HTML files.
+The actual script is defined in `org-export-html-scripts' and should
+not be modified."
+  :group 'org-export-html
+  :type 'boolean)
+
 (defconst org-export-html-scripts
 "<script type=\"text/javascript\">
 <!--/*--><![CDATA[/*><!--*/
@@ -549,7 +574,7 @@ Org-mode file."
    if(elem.cacheClassTarget)
      target.className = elem.cacheClassTarget;
  }
-/*]]>*/-->
+/*]]>*///-->
 </script>"
 "Basic javascript that is needed by HTML files produced by Org-mode.")
 
@@ -585,7 +610,7 @@ Org-mode file."
                                white-space:nowrap; }
   .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
                                  font-weight:bold; }
-  /*]]>*/-->
+  /*]]>*///-->
 </style>"
   "The default style specification for exported HTML files.
 Please use the variables `org-export-html-style' and
@@ -646,6 +671,23 @@ settings with <style>...</style> tags."
 ;;;###autoload
 (put 'org-export-html-style-extra 'safe-local-variable 'stringp)
 
+(defcustom org-export-html-tag-class-prefix ""
+  "Prefix to clas names for TODO keywords.
+Each tag gets a class given by the tag itself, with this prefix.
+The default prefix is empty because it is nice to just use the keyword
+as a class name.  But if you get into conflicts with other, existing
+CSS classes, then this prefic can be very useful."
+  :group 'org-export-html
+  :type 'string)
+
+(defcustom org-export-html-todo-kwd-class-prefix ""
+  "Prefix to clas names for TODO keywords.
+Each TODO keyword gets a class given by the keyword itself, with this prefix.
+The default prefix is empty because it is nice to just use the keyword
+as a class name.  But if you get into conflicts with other, existing
+CSS classes, then this prefic can be very useful."
+  :group 'org-export-html
+  :type 'string)
 
 (defcustom org-export-html-title-format "<h1 class=\"title\">%s</h1>\n"
   "Format for typesetting the document title in HTML export."
@@ -721,6 +763,15 @@ This is customizable so that alignment options can be specified."
 This is customizable so that alignment options can be specified."
   :group 'org-export-tables
   :type '(cons (string :tag "Opening tag") (string :tag "Closing tag")))
+
+(defcustom org-export-html-validation-link nil
+  "Non-nil means, add validationlink to postamble of HTML exported files."
+  :group 'org-export-html
+  :type '(choice
+	  (const :tag "Nothing" nil)
+	  (const :tag "XHTML 1.0" "<p class=\"xhtml-validation\"><a href=\"http://validator.w3.org/check?uri=referer\">Validate XHTML 1.0</a></p>")
+	  (string :tag "Specify full HTML")))
+
 
 (defcustom org-export-html-with-timestamp nil
   "If non-nil, write `org-export-html-html-helper-timestamp'
@@ -877,11 +928,15 @@ or if they are only using it locally."
   "Should default postamble be inserted?  Set by publishing functions.")
 (defvar org-current-export-file nil) ; dynamically scoped parameter
 (defvar org-current-export-dir nil) ; dynamically scoped parameter
+(defvar org-export-opt-plist nil
+  "Contains the current option plist.")
 
 (defconst org-export-plist-vars
   '((:link-up		      nil	  org-export-html-link-up)
     (:link-home		      nil	  org-export-html-link-home)
     (:language		      nil	  org-export-default-language)
+    (:keywords		      nil	  org-export-page-keywords)
+    (:description             nil	  org-export-page-description)
     (:customtime	      nil	  org-display-custom-times)
     (:headline-levels	      "H"	  org-export-headline-levels)
     (:section-numbers	      "num"	  org-export-with-section-numbers)
@@ -908,6 +963,7 @@ or if they are only using it locally."
     (:tables		      "|"	  org-export-with-tables)
     (:table-auto-headline     nil	  org-export-highlight-first-table-line)
     (:style-include-default   nil	  org-export-html-style-include-default)
+    (:style-include-scripts   nil	  org-export-html-style-include-scripts)
     (:style		      nil	  org-export-html-style)
     (:style-extra	      nil	  org-export-html-style-extra)
     (:agenda-style	      nil	  org-agenda-export-html-style)
@@ -971,7 +1027,8 @@ modified) list.")
 		 (append
 		  '("TITLE" "AUTHOR" "DATE" "EMAIL" "TEXT" "OPTIONS" "LANGUAGE"
 		    "LINK_UP" "LINK_HOME" "SETUPFILE" "STYLE" "LATEX_HEADER"
-		    "EXPORT_SELECT_TAGS" "EXPORT_EXCLUDE_TAGS")
+		    "EXPORT_SELECT_TAGS" "EXPORT_EXCLUDE_TAGS"
+		    "KEYWORDS" "DESCRIPTION")
 		  (mapcar 'car org-export-inbuffer-options-extra))))
 	    p key val text options a pr style
 	    latex-header
@@ -991,6 +1048,9 @@ modified) list.")
 	   ((string-equal key "AUTHOR")(setq p (plist-put p :author val)))
 	   ((string-equal key "EMAIL") (setq p (plist-put p :email val)))
 	   ((string-equal key "DATE") (setq p (plist-put p :date val)))
+	   ((string-equal key "KEYWORDS") (setq p (plist-put p :keywords val)))
+	   ((string-equal key "DESCRIPTION")
+	    (setq p (plist-put p :description val)))
 	   ((string-equal key "LANGUAGE") (setq p (plist-put p :language val)))
 	   ((string-equal key "STYLE")
 	    (setq style (concat style "\n" val)))
@@ -1026,6 +1086,14 @@ modified) list.")
 	  (setq p (plist-put p :latex-header-extra (substring latex-header 1))))
 	(when options
 	  (setq p (org-export-add-options-to-plist p options)))
+	;; Add macro definitions
+	(goto-char (point-min))
+	(while (re-search-forward
+		"^#\\+macro:[ \t]+\\([-a-zA-Z0-9_]+\\)[ \t]+\\(.*?[ \t]*$\\)"
+		nil t)
+	  (setq p (plist-put p (intern (concat ":macro-"
+					       (downcase (match-string 1))))
+			     (match-string 2))))
 	p))))
 
 (defun org-export-add-options-to-plist (p options)
@@ -1481,8 +1549,11 @@ on this string to produce the exported version."
   (let* ((htmlp (plist-get parameters :for-html))
 	 (asciip (plist-get parameters :for-ascii))
 	 (latexp (plist-get parameters :for-LaTeX))
-	 (backend (cond (htmlp 'html) (latexp 'latex) (asciip 'ascii)))
-
+	 (docbookp (plist-get parameters :for-docbook))
+	 (backend (cond (htmlp 'html)
+			(latexp 'latex)
+			(asciip 'ascii)
+			(docbookp 'docbook)))
 	 (archived-trees (plist-get parameters :archived-trees))
 	 (inhibit-read-only t)
 	 (drawers org-drawers)
@@ -1507,6 +1578,10 @@ on this string to produce the exported version."
 
       ;; Call the hook
       (run-hooks 'org-export-preprocess-hook)
+
+      ;; Process the macros
+      (org-export-preprocess-apply-macros)
+      (run-hooks 'org-export-preprocess-after-macros-hook)
 
       (untabify (point-min) (point-max))
 
@@ -1613,7 +1688,7 @@ on this string to produce the exported version."
       ;; LaTeX-specific preprocessing
       (when latexp
 	(require 'org-export-latex nil)
-	(org-export-latex-preprocess))
+	(org-export-latex-preprocess parameters))
 
       ;; ASCII-specific preprocessing
       (when asciip
@@ -1622,6 +1697,11 @@ on this string to produce the exported version."
       ;; HTML-specific preprocessing
       (when htmlp
 	(org-export-html-preprocess parameters))
+
+      ;; DocBook-specific preprocessing
+      (when docbookp
+	(require 'org-export-docbook nil)
+        (org-export-docbook-preprocess parameters))
 
       ;; Remove or replace comments
       (org-export-handle-comments (plist-get parameters :comments))
@@ -1906,7 +1986,8 @@ from the buffer."
 
 (defun org-export-select-backend-specific-text (backend)
   (let ((formatters
-	 '((html "HTML" "BEGIN_HTML" "END_HTML")
+	 '((docbook "DOCBOOK" "BEGIN_DOCBOOK" "END_DOCBOOK")
+           (html "HTML" "BEGIN_HTML" "END_HTML")
 	   (ascii "ASCII" "BEGIN_ASCII" "END_ASCII")
 	   (latex "LaTeX" "BEGIN_LaTeX" "END_LaTeX")))
 	(case-fold-search t)
@@ -2252,8 +2333,20 @@ TYPE must be a string, any of:
 	  (pop roman)))
       res)))
 
-(org-number-to-roman 1961)
+;;; Macros
 
+(defun org-export-preprocess-apply-macros ()
+  "Replace macro references."
+  (goto-char (point-min))
+  (let (sy val key)
+    (while (re-search-forward "{{{\\([a-zA-Z][-a-zA-Z0-9_]*\\)}}}" nil t)
+      (setq key (downcase (match-string 1)))
+      (when (setq val (or (plist-get org-export-opt-plist
+				     (intern (concat ":macro-" key)))
+			  (plist-get org-export-opt-plist
+				     (intern (concat ":" key)))))
+	(and (stringp val)
+	     (replace-match val t t))))))
 
 ;;; Include files
 
@@ -2375,7 +2468,8 @@ Numbering lines works for all three major backends (html, latex, and ascii)."
 		   (org-count-lines code))
 	    fmt (if (string-match "-l[ \t]+\"\\([^\"\n]+\\)\"" opts)
 		    (match-string 1 opts)))
-      (when (and textareap (eq backend 'html))
+      (when (or (and textareap (eq backend 'html))
+                (eq backend 'docbook))
 	;; we cannot use numbering or highlighting.
 	(setq num nil cont nil lang nil))
       (if keepp (setq rpllbl 'keep))
@@ -2391,6 +2485,14 @@ Numbering lines works for all three major backends (html, latex, and ascii)."
 		    (buffer-string))))
       ;; Now backend-specific coding
       (cond
+       ((eq backend 'docbook)
+        (setq rtn (concat "<programlisting><![CDATA[\n"
+                          code
+                          "]]>\n</programlisting>\n"))
+        (concat "\n#+BEGIN_DOCBOOK\n"
+                rtn
+                "\n#+END_DOCBOOK\n\n")
+        )
        ((eq backend 'html)
 	;; We are exporting to HTML
 	(when lang
@@ -2412,6 +2514,7 @@ Numbering lines works for all three major backends (html, latex, and ascii)."
 			  (funcall mode)
 			(fundamental-mode))
 		      (font-lock-fontify-buffer)
+		      (set-buffer-modified-p nil)
 		      (org-export-htmlize-region-for-paste
 		       (point-min) (point-max))))
 	      (if (string-match "<pre\\([^>]*\\)>\n?" rtn)
@@ -2556,9 +2659,10 @@ underlined headlines.  The default is 3."
 			     (+ (funcall outline-level)
 				(if org-odd-levels-only 1 0)))
 			 0))
-	 (opt-plist (if subtree-p
-			(org-export-add-subtree-options opt-plist rbeg)
-		      opt-plist))
+	 (opt-plist (setq org-export-opt-plist
+			  (if subtree-p
+			      (org-export-add-subtree-options opt-plist rbeg)
+			    opt-plist)))
 	 (custom-times org-display-custom-times)
 	 (org-ascii-current-indentation '(0 . 0))
 	 (level 0) line txt
@@ -2620,7 +2724,7 @@ underlined headlines.  The default is 3."
 		  :add-text (plist-get opt-plist :text))
 		 "\n"))
 	 thetoc have-headings first-heading-pos
-	 table-open table-buffer link desc)
+	 table-open table-buffer link-buffer link desc desc0 rpl wrap)
     (let ((inhibit-read-only t))
       (org-unmodified
        (remove-text-properties (point-min) (point-max)
@@ -2729,12 +2833,17 @@ underlined headlines.  The default is 3."
 
     (org-init-section-numbers)
     (while (setq line (pop lines))
+      (when (and link-buffer (string-match "^\\*+ " line))
+	(org-export-ascii-push-links (nreverse link-buffer))
+	(setq link-buffer nil))
+      (setq wrap nil)
       ;; Remove the quoted HTML tags.
       (setq line (org-html-expand-for-ascii line))
       ;; Replace links with the description when possible
       (while (string-match org-bracket-link-regexp line)
 	(setq link (match-string 1 line)
-	      desc (match-string (if (match-end 3) 3 1) line))
+	      desc0 (match-string 3 line)
+	      desc (or desc0 (match-string 1 line)))
 	(if (and (> (length link) 8)
 		 (equal (substring link 0 8) "coderef:"))
 	    (setq line (replace-match
@@ -2743,9 +2852,16 @@ underlined headlines.  The default is 3."
 				      (substring link 8)
 				      org-export-code-refs)))
 			t t line))
-	  (setq line (replace-match
-		      (if (match-end 3) "[\\3]" "[\\1]")
-		      t nil line))))
+	  (setq rpl (concat "[" 
+			    (or (match-string 3 line) (match-string 1 line))
+			    "]"))
+	  (when (and desc0 (not (equal desc0 link)))
+	    (if org-export-ascii-links-to-notes
+		(push (cons desc0 link) link-buffer)
+	      (setq rpl (concat rpl " (" link ")")
+		    wrap (+ (length line) (- (length (match-string 0)))
+			    (length desc)))))
+	  (setq line (replace-match rpl t t line))))
       (when custom-times
 	(setq line (org-translate-time line)))
       (cond
@@ -2781,8 +2897,11 @@ underlined headlines.  The default is 3."
 	    (setq line (replace-match "" t t line)))
 	(if (and org-export-with-fixed-width
 		 (string-match "^\\([ \t]*\\)\\(:\\( \\|$\\)\\)" line))
-	    (setq line (replace-match "\\1" nil nil line)))
+	    (setq line (replace-match "\\1" nil nil line))
+	  (if wrap (setq line (org-export-ascii-wrap line wrap))))
 	(insert line "\n"))))
+
+    (org-export-ascii-push-links (nreverse link-buffer))
 
     (normal-mode)
 
@@ -2833,8 +2952,8 @@ underlined headlines.  The default is 3."
     (goto-char (match-beginning 2))
     (delete-char 1) (insert "`")
     (goto-char (match-end 2)))
-  (goto-char (point-min))
   ;; Remove target markers
+  (goto-char (point-min))
   (while (re-search-forward  "<<<?\\([^<>]*\\)>>>?\\([ \t]*\\)" nil t)
     (replace-match "\\1\\2")))
 
@@ -2862,6 +2981,38 @@ underlined headlines.  The default is 3."
 	;; We just remove the tags for now.
 	(setq line (replace-match "" nil nil line))))
   line)
+
+
+(defun org-export-ascii-wrap (line where)
+  "Wrap LINE at or before WHERE."
+  (let ((ind (org-get-indentation line))
+	pos)
+    (catch 'found
+      (loop for i from where downto (/ where 2) do
+	    (and (equal (aref line i) ?\ )
+		 (setq pos i)
+		 (throw 'found t))))
+    (if pos
+	(concat (substring line 0 pos) "\n"
+		(make-string ind ?\ )
+		(substring line (1+ pos)))
+      line)))
+			   
+(defun org-export-ascii-push-links (link-buffer)
+  "Push out links in the buffer."
+  (when link-buffer
+    ;; We still have links to push out.
+    (insert "\n")
+    (let ((ind ""))
+      (save-match-data
+	(if (save-excursion
+	      (re-search-backward
+	       "^\\(\\([ \t]*\\)\\|\\(\\*+ \\)\\)[^ \t\n]" nil t))
+	    (setq ind (or (match-string 2)
+			  (make-string (length (match-string 3)) ?\ )))))
+      (mapc (lambda (x) (insert ind "[" (car x) "]: " (cdr x) "\n"))
+	    link-buffer))
+    (insert "\n")))
 
 (defun org-insert-centered (s &optional underline)
   "Insert the string S centered and underline it with character UNDERLINE."
@@ -2989,6 +3140,8 @@ Does include HTML export options as well as TODO and CATEGORY stuff."
 #+AUTHOR:    %s
 #+EMAIL:     %s
 #+DATE:      %s
+#+DESCRIPTION: 
+#+KEYWORDS: 
 #+LANGUAGE:  %s
 #+OPTIONS:   H:%d num:%s toc:%s \\n:%s @:%s ::%s |:%s ^:%s -:%s f:%s *:%s <:%s
 #+OPTIONS:   TeX:%s LaTeX:%s skip:%s d:%s todo:%s pri:%s tags:%s
@@ -3210,7 +3363,9 @@ PUB-DIR is set, use this as the publishing directory."
 			    org-export-html-style-default)
 			(plist-get opt-plist :style)
 			(plist-get opt-plist :style-extra)
-			"\n" org-export-html-scripts))
+			"\n"
+			(if (plist-get opt-plist :style-include-scripts)
+			    org-export-html-scripts)))
 	 (html-extension (plist-get opt-plist :html-extension))
 	 (link-validate (plist-get opt-plist :link-validation-function))
 	 valid thetoc have-headings first-heading-pos
@@ -3232,9 +3387,10 @@ PUB-DIR is set, use this as the publishing directory."
 			     (+ (funcall outline-level)
 				(if org-odd-levels-only 1 0)))
 			 0))
-	 (opt-plist (if subtree-p
-			(org-export-add-subtree-options opt-plist rbeg)
-		      opt-plist))
+	 (opt-plist (setq org-export-opt-plist
+			  (if subtree-p
+			      (org-export-add-subtree-options opt-plist rbeg)
+			    opt-plist)))
 	 ;; The following two are dynamically scoped into other
 	 ;; routines below.
 	 (org-current-export-dir
@@ -3286,6 +3442,8 @@ PUB-DIR is set, use this as the publishing directory."
 	 (llt org-plain-list-ordered-item-terminator)
 	 (email       (plist-get opt-plist :email))
 	 (language    (plist-get opt-plist :language))
+	 (keywords    (plist-get opt-plist :keywords))
+	 (description (plist-get opt-plist :description))
 	 (lang-words  nil)
 	 (head-count  0) cnt
 	 (start       0)
@@ -3390,11 +3548,17 @@ lang=\"%s\" xml:lang=\"%s\">
 <meta name=\"generator\" content=\"Org-mode\"/>
 <meta name=\"generated\" content=\"%s\"/>
 <meta name=\"author\" content=\"%s\"/>
+<meta name=\"description\" content=\"%s\"/>
+<meta name=\"keywords\" content=\"%s\"/>
 %s
-</head><body>
+</head>
+<body>
+<div id=\"content\">
 "
 		 language language (org-html-expand title)
-		 (or charset "iso-8859-1") date author style))
+		 (or charset "iso-8859-1")
+		 date author description keywords
+		 style))
 
 	(insert (or (plist-get opt-plist :preamble) ""))
 
@@ -3508,7 +3672,7 @@ lang=\"%s\" xml:lang=\"%s\">
 	      (insert "<pre class=\"example\">\n"))
 	    (insert (org-html-protect (match-string 3 line)) "\n")
 	    (when (or (not lines)
-		      (not (string-match "^[ \t]*\\(:.*\\)"
+		      (not (string-match "^[ \t]*:\\(\\([ \t]\\|$\\)\\(.*\\)\\)"
 					 (car lines))))
 	      (setq infixed nil)
 	      (insert "</pre>\n"))
@@ -3639,7 +3803,9 @@ lang=\"%s\" xml:lang=\"%s\">
 			     id-file (file-name-directory org-current-export-file)))
 	      (setq id-file (concat (file-name-sans-extension id-file)
 				    "." html-extension))
-	      (setq rpl (concat "<a href=\"" id-file "#" path "\""
+	      (setq rpl (concat "<a href=\"" id-file "#"
+				(if (org-uuidgen-p path) "ID-")
+				path "\""
 				attr ">"
 				(org-export-html-format-desc desc)
 				"</a>")))
@@ -3744,7 +3910,8 @@ lang=\"%s\" xml:lang=\"%s\">
 					org-done-keywords)
 				"done" "todo")
 			    " " (match-string 2 line)
-			    "\"> " (match-string 2 line)
+			    "\"> " (org-export-html-get-todo-kwd-class-name
+				    (match-string 2 line))
 			    "</span>" (substring line (match-end 2)))))
 
 	  ;; Does this contain a reference to a footnote?
@@ -3945,9 +4112,12 @@ lang=\"%s\" xml:lang=\"%s\">
 			(or (nth 4 lang-words) "Footnotes")
 			(mapconcat 'identity (nreverse footnotes) "\n"))
 		"\n"))
+      (let ((bib (org-export-html-get-bibliography)))
+	(when bib
+	  (insert "\n" bib "\n")))
       (unless body-only
 	(when (plist-get opt-plist :auto-postamble)
-	  (insert "<div id=\"postamble\">")
+	  (insert "<div id=\"postamble\">\n")
 	  (when (and org-export-author-info author)
 	    (insert "<p class=\"author\"> "
 		    (nth 1 lang-words) ": " author "\n")
@@ -3965,14 +4135,16 @@ lang=\"%s\" xml:lang=\"%s\">
 		    (nth 2 lang-words) ": "
 		    date "</p>\n"))
 	  (when org-export-creator-info
-	    (insert (format "<p>HTML generated by org-mode %s in emacs %s</p>\n"
+	    (insert (format "<p class=\"creator\">HTML generated by org-mode %s in emacs %s</p>\n"
 			    org-version emacs-major-version)))
+	  (when org-export-html-validation-link
+	    (insert org-export-html-validation-link "\n"))
 	  (insert "</div>"))
 
 	(if org-export-html-with-timestamp
 	    (insert org-export-html-html-helper-timestamp))
 	(insert (or (plist-get opt-plist :postamble) ""))
-	(insert "</body>\n</html>\n"))
+	(insert "\n</div>\n</body>\n</html>\n"))
 
       (unless (plist-get opt-plist :buffer-will-be-killed)
 	(normal-mode)
@@ -4068,6 +4240,22 @@ lang=\"%s\" xml:lang=\"%s\">
 		(if caption (concat "\n<p>" caption "</p>") "")
 		(if org-par-open "\n<p>" ""))))))
 
+(defun org-export-html-get-bibliography ()
+  "Find bibliography, cut it out and return it."
+  (catch 'exit
+    (let (beg end (cnt 1) bib)
+      (save-excursion
+	(goto-char (point-min))
+	(when (re-search-forward "^[ \t]*<div \\(id\\|class\\)=\"bibliography\"" nil t)
+	  (setq beg (match-beginning 0))
+	  (while (re-search-forward "</?div\\>" nil t)
+	    (setq cnt (+ cnt (if (string= (match-string 0) "<div") +1 -1)))
+	    (when (= cnt 0)
+	      (and (looking-at ">") (forward-char 1))
+	      (setq bib (buffer-substring beg (point)))
+	      (delete-region beg (point))
+	    (throw 'exit bib))))
+	nil))))
 
 (defvar org-table-colgroup-info nil)
 (defun org-format-table-ascii (lines)
@@ -4221,7 +4409,10 @@ lang=\"%s\" xml:lang=\"%s\">
 	     fnum "")
 	    html)
       (if colgropen (setq html (cons (car html) (cons "</colgroup>" (cdr html)))))
-      (if caption (push (format "<caption>%s</caption>" caption) html))
+      ;; Since the output of HTML table formatter can also be used in
+      ;; DocBook document, we want to always include the caption to make
+      ;; DocBook XML file valid.
+      (push (format "<caption>%s</caption>" (or caption "")) html)
       (push html-table-tag html))
     (concat (mapconcat 'identity html "\n") "\n")))
 
@@ -4610,6 +4801,7 @@ When TITLE is nil, just close all open levels."
   (let* ((target (and title (org-get-text-property-any 0 'target title)))
 	 (extra-targets
 	  (mapconcat (lambda (x)
+		       (if (org-uuidgen-p x) (setq x (concat "ID-" x)))
 		       (format "<a name=\"%s\" id=\"%s\"></a>"
 			       x x))
 		     (cdr (assoc target org-export-target-aliases))
@@ -4631,9 +4823,13 @@ When TITLE is nil, just close all open levels."
 			   (save-match-data
 			     (concat
 			      "&nbsp;&nbsp;&nbsp;<span class=\"tag\">"
-			      (mapconcat 'identity (org-split-string
-						    (match-string 1 title) ":")
-					 "&nbsp;")
+			      (mapconcat
+			       (lambda (x)
+				 (format "<span class=\"%s\">%s</span>"
+					 (org-export-html-get-tag-class-name x)
+					 x))
+			       (org-split-string (match-string 1 title) ":")
+			       "&nbsp;")
 			      "</span>"))
 			 "")
 		       t t title)))
@@ -4669,6 +4865,22 @@ When TITLE is nil, just close all open levels."
   (or (get-text-property pos prop object)
       (and (setq pos (next-single-property-change pos prop object))
 	   (get-text-property pos prop object))))
+
+(defun org-export-html-get-tag-class-name (tag)
+  "Turn tag into a valid class name.
+Replaces invalid characters with \"_\" and then prepends a prefix."
+  (save-match-data
+    (while (string-match "[^a-zA-Z0-9_]" tag)
+      (setq tag (replace-match "_" t t tag))))
+  (concat org-export-html-tag-class-prefix tag))
+
+(defun org-export-html-get-todo-kwd-class-name (kwd)
+  "Turn todo keyword into a valid class name.
+Replaces invalid characters with \"_\" and then prepends a prefix."
+  (save-match-data
+    (while (string-match "[^a-zA-Z0-9_]" kwd)
+      (setq kwd (replace-match "_" t t kwd))))
+  (concat org-export-html-todo-kwd-class-prefix kwd))
 
 (defun org-html-level-close (level max-outline-level)
   "Terminate one level in HTML export."

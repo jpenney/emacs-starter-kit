@@ -83,7 +83,7 @@
 
 (defun jcp-org-load ()
   (progn
-    (org-enforce-todo-checkbox-dependencies)
+;;    (org-enforce-todo-checkbox-dependencies)
     (setq org-hide-leading-stars 't)
     (setq org-log-done '(note))
     (setq org-log-note-clock-out 't)

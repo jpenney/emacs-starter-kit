@@ -6,7 +6,7 @@
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.23
+;; Version: 6.24a
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -81,8 +81,20 @@ This is the compiled version of the format.")
 (org-defkey org-columns-map "\M-b" 'backward-char)
 (org-defkey org-columns-map "a" 'org-columns-edit-allowed)
 (org-defkey org-columns-map "s" 'org-columns-edit-attributes)
-(org-defkey org-columns-map "\M-f" (lambda () (interactive) (goto-char (1+ (point)))))
-(org-defkey org-columns-map [right] (lambda () (interactive) (goto-char (1+ (point)))))
+(org-defkey org-columns-map "\M-f"
+	    (lambda () (interactive) (goto-char (1+ (point)))))
+(org-defkey org-columns-map [right]
+	    (lambda () (interactive) (goto-char (1+ (point)))))
+(org-defkey org-columns-map [down]
+	    (lambda () (interactive)
+	      (let ((col (current-column)))
+		(org-no-warnings (next-line))
+		(move-to-column col))))
+(org-defkey org-columns-map [up]
+	    (lambda () (interactive)
+	      (let ((col (current-column)))
+		(org-no-warnings (previous-line))
+		(move-to-column col))))
 (org-defkey org-columns-map [(shift right)] 'org-columns-next-allowed-value)
 (org-defkey org-columns-map "n" 'org-columns-next-allowed-value)
 (org-defkey org-columns-map [(shift left)] 'org-columns-previous-allowed-value)

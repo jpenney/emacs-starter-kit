@@ -7,7 +7,7 @@
 ;;	   Bastien Guerry <bzg AT altern DOT org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.23
+;; Version: 6.24a
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -209,7 +209,9 @@ Return t when things worked, nil when we are not in an item."
 					descp))))
 	   (eow (save-excursion (beginning-of-line 1) (looking-at "[ \t]*")
 				(match-end 0)))
-	   (blank-a (cdr (assq 'plain-list-item org-blank-before-new-entry)))
+	   (blank-a (if org-empty-line-terminates-plain-lists
+			nil
+		      (cdr (assq 'plain-list-item org-blank-before-new-entry))))
 	   (blank (if (eq blank-a 'auto) empty-line-p blank-a))
 	   pos)
       (if descp (setq checkbox nil))
@@ -872,17 +874,19 @@ I.e. to the text after the last item."
 (defun org-indent-item (arg)
   "Indent a local list item."
   (interactive "p")
+  (and (org-region-active-p) (org-cursor-to-region-beginning))
   (unless (org-at-item-p)
     (error "Not on an item"))
   (save-excursion
     (let (beg end ind ind1 tmp delta ind-down ind-up)
+      (setq end (and (org-region-active-p) (region-end)))
       (if (memq last-command '(org-shiftmetaright org-shiftmetaleft))
 	  (setq beg org-last-indent-begin-marker
 		end org-last-indent-end-marker)
 	(org-beginning-of-item)
 	(setq beg (move-marker org-last-indent-begin-marker (point)))
 	(org-end-of-item)
-	(setq end (move-marker org-last-indent-end-marker (point))))
+	(setq end (move-marker org-last-indent-end-marker (or end (point)))))
       (goto-char beg)
       (setq tmp (org-item-indent-positions)
 	    ind (car tmp)
