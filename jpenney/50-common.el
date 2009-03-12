@@ -1,13 +1,21 @@
 (message "50-common")
 (require 'org-install)
-;;(load-library (concat jcp-home "lib/color-theme.el"))
+
+;; yasnippet
+(jcp-elpa-install-package 'yasnippet-bundle)
+
+
+(unless (file-exists-p jcp-yasnippets)
+    (make-directory jcp-yasnippets))
+(yas/initialize)
+(yas/load-directory jcp-yasnippets)
+
+;; color-theme
 (require 'color-theme)
 (color-theme-initialize)
 
 (setq inhibit-startup-message)
 (pc-selection-mode 't)
-(tabkey2-mode 't)
-
 (setq ispell-program-name "aspell")
 
 ;; server mode
@@ -69,7 +77,6 @@
   (require 'ecb)
   (ecb-byte-compile)
   )
-  
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 (setq interpreter-mode-alist (cons '("python" . python-mode)
                                    interpreter-mode-alist))

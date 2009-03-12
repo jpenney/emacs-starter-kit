@@ -17,6 +17,15 @@
 (defvar jcp-home (file-name-directory
                   (or (buffer-file-name) load-file-name)))
 
+(defvar jcp-yasnippets (concat jcp-home "/snippets"))
+
+(defun jcp-elpa-install-package (package)
+  "Install package from elpa if not already installed"
+  (progn
+    (unless (or (member package package-activated-list)
+                (functionp package))
+      (message "Installing %s" (symbol-name package))
+      (package-install package))))
 
 (add-to-ordered-list 'load-path (concat jcp-home "lib") 1)
 (load-library "bytecomp")
