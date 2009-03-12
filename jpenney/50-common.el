@@ -1,4 +1,6 @@
 (message "50-common")
+
+(add-to-list 'bcc-blacklist (concat jcp-home "lib/org/.*"))
 (require 'org-install)
 
 ;; yasnippet
@@ -44,6 +46,7 @@
 
 ;;
 ;; Load CEDET
+(add-to-list 'bcc-blacklist (concat jcp-home "lib/cedet/.*"))
 (let ((bcc-enabled 'nil)
       (byte-compile-verbose 'nil)
       (byte-compile-warnings ()))
@@ -90,6 +93,7 @@
 
 (defun jcp-org-load ()
   (progn
+    (message "Configuring Org")
 ;;    (org-enforce-todo-checkbox-dependencies)
     (setq org-hide-leading-stars 't)
     (setq org-log-done '(note))
@@ -99,7 +103,7 @@
     (setq org-special-ctrl-k 't)
     ))
 
-(add-hook 'org-load-hook 'jcp-org-load) 
+(add-hook 'org-mode-hook 'jcp-org-load) 
 
 (defcustom my-window-setup-hook nil
   "Hook for window-setup"

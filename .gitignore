@@ -18,3 +18,7 @@ oddmuse/*
 elpa-to-submit/nxhtml/etc/schema/xhtml-loader.rnc~
 */CVS/*.Extra
 **/CVS/*.Extra
+CVS/Entries.Old
+Entries.Old
+Entries.Extra
+Entries.Extra.Old

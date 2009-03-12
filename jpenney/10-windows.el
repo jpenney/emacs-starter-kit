@@ -1,5 +1,7 @@
 (if (string-match jcp-systype "windows")
     (progn
+      (setq todochiku-command
+             "C:/Program Files/full phat/Snarl/extras/sncmd/sncmd.exe")
       (setq browse-url-browser-function
             'browse-url-default-windows-browser)
 
