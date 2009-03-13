@@ -17,16 +17,6 @@
       (require 'w32-symlinks)
       (require 'cygwin-mount)
       (cygwin-mount-activate)
-
-      (defun jcp-network-auto-save ()
-        (progn
-          (if (string-match "^\\\\\\\\" buffer-auto-save-file-name)
-              (setq buffer-auto-save-file-name
-                    (concat "/tmp/"
-                            (cedet-directory-name-to-file-name
-                             buffer-auto-save-file-name))))))
-
-      (add-hook 'auto-save-hook 'jcp-network-auto-save)
       ))
 
 
