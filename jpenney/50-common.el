@@ -136,3 +136,10 @@
 
 
 (my-window-setup)
+
+(autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
+(setq auto-mode-alist (cons '("\\.cs$" . csharp-mode) auto-mode-alist))
+
+(cond 
+ (window-system
+  (require 'todochiku)))
