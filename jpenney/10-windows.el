@@ -6,7 +6,7 @@
             'browse-url-default-windows-browser)
 
       
-      (defvar jcp-cygwin-bin "c:/cygwin/bin")
+      (defvar jcp-cygwin-bin  (concat (getenv "CYGWIN_ROOT_MOUNT") "/bin"))
       (setenv "PATH" (concat jcp-cygwin-bin ";" (getenv "PATH")))
       (setq exec-path (cons jcp-cygwin-bin exec-path))
 
