@@ -12,7 +12,10 @@
        (defvar jcp-systype "unknown")))
 
 
-(defvar jcp-yasnippets (concat jcp-home "/snippets"))
+(defvar jcp-yasnippets (concat jcp-home "snippets"))
+
+(defvar icicle-download-dir (concat jcp-home "icicles"))
+(add-to-ordered-list 'load-path icicle-download-dir 1)
 
 (defun jcp-elpa-install-package (package)
   "Install package from elpa if not already installed"

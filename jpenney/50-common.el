@@ -13,6 +13,14 @@
 (yas/initialize)
 (yas/load-directory jcp-yasnippets)
 
+;; icicles
+(require 'icicles-install)
+(unless (file-exists-p icicle-download-dir)
+  (progn
+    (make-directory icicle-download-dir)
+    (icicle-download-all-files)))
+(require 'icicles)
+
 ;; color-theme
 (require 'color-theme)
 (color-theme-initialize)
@@ -104,6 +112,7 @@
     (setq org-export-with-archived-trees nil)
     (setq org-enforce-todo-checkbox-dependencies 't)
     (setq org-special-ctrl-k 't)
+    (setq org-agenda-dim-blocked-tasks 't)
     ))
 
 (add-hook 'org-mode-hook 'jcp-org-load) 
@@ -117,6 +126,7 @@
    (tool-bar-mode 1)
    (tooltip-mode 1)   
    (menu-bar-mode 1)
+   (icy-mode 1)
    (run-hooks 'my-window-setup-hook)
    )
 
