@@ -72,11 +72,13 @@ LISPF      = 	org.el			\
 	     	org-compat.el		\
 		org-exp.el		\
 		org-export-latex.el	\
+		org-docbook.el		\
 		org-faces.el		\
 		org-footnote.el		\
 		org-gnus.el		\
 		org-id.el		\
 		org-info.el		\
+		org-inlinetask.el	\
 		org-jsinfo.el		\
 		org-irc.el		\
 		org-list.el		\
@@ -87,6 +89,7 @@ LISPF      = 	org.el			\
 		org-mouse.el		\
 		org-publish.el		\
 		org-plot.el		\
+		org-protocol.el		\
 		org-remember.el		\
 		org-rmail.el		\
 		org-table.el		\
@@ -137,6 +140,9 @@ install-info: $(INFOFILES)
 	if [ ! -d $(infodir) ]; then $(MKDIR) $(infodir); else true; fi ;
 	$(CP) $(INFOFILES) $(infodir)
 	$(INSTALL_INFO) --info-file=$(INFOFILES) --info-dir=$(infodir)
+
+install-info-debian: $(INFOFILES)
+	$(INSTALL_INFO) --infodir=$(infodir) $(INFOFILES)
 
 install-noutline: xemacs/noutline.elc
 	if [ ! -d $(lispdir) ]; then $(MKDIR) $(lispdir); else true; fi ;
@@ -320,11 +326,13 @@ lisp/org-colview-xemacs.elc:      lisp/org.el
 lisp/org-compat.elc:       lisp/org-macs.el
 lisp/org-exp.elc:          lisp/org.el lisp/org-agenda.el
 lisp/org-export-latex.elc: lisp/org.el lisp/org-exp.el
+lisp/org-docbook.elc:      lisp/org.el lisp/org-exp.el
 lisp/org-faces.elc:        lisp/org-macs.el lisp/org-compat.el
 lisp/org-footnotes.elc:    lisp/org-macs.el lisp/org-compat.el
 lisp/org-gnus.elc:         lisp/org.el
 lisp/org-id.elc:           lisp/org.el
 lisp/org-info.elc:         lisp/org.el
+lisp/org-inlinetask.elc:
 lisp/org-irc.elc:          lisp/org.el
 lisp/org-jsinfo.elc:       lisp/org.el lisp/org-exp.el
 lisp/org-list.elc:         lisp/org-macs.el lisp/org-compat.el
@@ -335,6 +343,7 @@ lisp/org-mhe.elc:          lisp/org.el
 lisp/org-mouse.elc:        lisp/org.el
 lisp/org-plot.elc:         lisp/org.el lisp/org-exp.el lisp/org-table.el
 lisp/org-publish.elc:
+lisp/org-protocol.elc:     lisp/org.el
 lisp/org-remember.elc:     lisp/org.el
 lisp/org-rmail.elc:        lisp/org.el
 lisp/org-table.elc:        lisp/org.el

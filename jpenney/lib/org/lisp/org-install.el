@@ -3,8 +3,8 @@
 ;;;;;;  org-cycle-agenda-files org-ido-switchb org-iswitchb org-map-entries
 ;;;;;;  org-open-link-from-string org-open-at-point-global org-insert-link-global
 ;;;;;;  org-store-link org-run-like-in-org-mode turn-on-orgstruct++
-;;;;;;  turn-on-orgstruct orgstruct-mode org-global-cycle org-cycle
-;;;;;;  org-mode) "org" "lisp/org.el" (18867 60005))
+;;;;;;  turn-on-orgstruct orgstruct-mode org-global-cycle org-mode)
+;;;;;;  "org" "lisp/org.el" (18899 29185))
 ;;; Generated autoloads from lisp/org.el
 
 (autoload 'org-mode "org" "\
@@ -28,41 +28,7 @@ The following commands are available:
 
 \(fn)" t nil)
 
-(autoload 'org-cycle "org" "\
-Visibility cycling for Org-mode.
-
-- When this function is called with a prefix argument, rotate the entire
-  buffer through 3 states (global cycling)
-  1. OVERVIEW: Show only top-level headlines.
-  2. CONTENTS: Show all headlines of all levels, but no body text.
-  3. SHOW ALL: Show everything.
-  When called with two C-u C-u prefixes, switch to the startup visibility,
-  determined by the variable `org-startup-folded', and by any VISIBILITY
-  properties in the buffer.
-  When called with three C-u C-u C-u prefixed, show the entire buffer,
-  including drawers.
-
-- When point is at the beginning of a headline, rotate the subtree started
-  by this line through 3 different states (local cycling)
-  1. FOLDED:   Only the main headline is shown.
-  2. CHILDREN: The main headline and the direct children are shown.
-               From this state, you can move to one of the children
-               and zoom in further.
-  3. SUBTREE:  Show the entire subtree, including body text.
-
-- When there is a numeric prefix, go up to a heading with level ARG, do
-  a `show-subtree' and return to the previous cursor position.  If ARG
-  is negative, go up that many levels.
-
-- When point is not at the beginning of a headline, execute the global
-  binding for TAB, which is re-indenting the line.  See the option
-  `org-cycle-emulate-tab' for details.
-
-- Special case: if point is at the beginning of the buffer and there is
-  no headline in line 1, this function will act as if called with prefix arg.
-  But only if also the variable `org-cycle-global-at-bob' is t.
-
-\(fn &optional ARG)" t nil)
+(defvar org-inlinetask-min-level)
 
 (autoload 'org-global-cycle "org" "\
 Cycle the global visibility.  For details see `org-cycle'.
@@ -237,7 +203,7 @@ Call the customize function with org as argument.
 ;;;;;;  org-diary org-agenda-list-stuck-projects org-tags-view org-todo-list
 ;;;;;;  org-search-view org-agenda-list org-batch-store-agenda-views
 ;;;;;;  org-store-agenda-views org-batch-agenda-csv org-batch-agenda
-;;;;;;  org-agenda) "org-agenda" "lisp/org-agenda.el" (18867 60005))
+;;;;;;  org-agenda) "org-agenda" "lisp/org-agenda.el" (18899 22091))
 ;;; Generated autoloads from lisp/org-agenda.el
 
 (autoload 'org-agenda "org-agenda" "\
@@ -490,7 +456,7 @@ belonging to the \"Work\" category.
 ;;;***
 
 ;;;### (autoloads (org-attach) "org-attach" "lisp/org-attach.el"
-;;;;;;  (18867 52696))
+;;;;;;  (18892 46446))
 ;;; Generated autoloads from lisp/org-attach.el
 
 (autoload 'org-attach "org-attach" "\
@@ -502,7 +468,7 @@ Shows a list of commands and prompts for another key to execute a command.
 ;;;***
 
 ;;;### (autoloads (org-bbdb-anniversaries) "org-bbdb" "lisp/org-bbdb.el"
-;;;;;;  (18867 52696))
+;;;;;;  (18892 46446))
 ;;; Generated autoloads from lisp/org-bbdb.el
 
 (autoload 'org-bbdb-anniversaries "org-bbdb" "\
@@ -513,7 +479,7 @@ Extract anniversaries from BBDB for display in the agenda.
 ;;;***
 
 ;;;### (autoloads (org-clock-persistence-insinuate org-get-clocktable)
-;;;;;;  "org-clock" "lisp/org-clock.el" (18867 52696))
+;;;;;;  "org-clock" "lisp/org-clock.el" (18892 46446))
 ;;; Generated autoloads from lisp/org-clock.el
 
 (autoload 'org-get-clocktable "org-clock" "\
@@ -536,7 +502,7 @@ Set up hooks for clock persistence
 ;;;;;;  org-replace-region-by-html org-export-as-html-to-buffer org-export-as-html-batch
 ;;;;;;  org-export-as-html-and-open org-insert-export-options-template
 ;;;;;;  org-export-visible org-export-as-ascii org-export) "org-exp"
-;;;;;;  "lisp/org-exp.el" (18868 15353))
+;;;;;;  "lisp/org-exp.el" (18899 21956))
 ;;; Generated autoloads from lisp/org-exp.el
 
 (put 'org-export-html-style 'safe-local-variable 'booleanp)
@@ -693,7 +659,7 @@ The XOXO buffer is named *xoxo-<source buffer name>*
 ;;;### (autoloads (org-export-as-pdf-and-open org-export-as-pdf org-export-as-latex
 ;;;;;;  org-export-region-as-latex org-replace-region-by-latex org-export-as-latex-to-buffer
 ;;;;;;  org-export-as-latex-batch) "org-export-latex" "lisp/org-export-latex.el"
-;;;;;;  (18867 60005))
+;;;;;;  (18896 37990))
 ;;; Generated autoloads from lisp/org-export-latex.el
 
 (autoload 'org-export-as-latex-batch "org-export-latex" "\
@@ -771,8 +737,86 @@ Export as LaTeX, then process through to PDF, and open.
 
 ;;;***
 
+;;;### (autoloads (org-export-as-docbook org-export-as-docbook-pdf-and-open
+;;;;;;  org-export-as-docbook-pdf org-export-region-as-docbook org-replace-region-by-docbook
+;;;;;;  org-export-as-docbook-to-buffer org-export-as-docbook-batch)
+;;;;;;  "org-docbook" "lisp/org-docbook.el" (18897 9030))
+;;; Generated autoloads from lisp/org-docbook.el
+
+(autoload 'org-export-as-docbook-batch "org-docbook" "\
+Call `org-export-as-docbook' in batch style.
+This function can be used in batch processing.
+
+For example:
+
+$ emacs --batch
+        --load=$HOME/lib/emacs/org.el
+        --visit=MyOrgFile.org --funcall org-export-as-docbook-batch
+
+\(fn)" nil nil)
+
+(autoload 'org-export-as-docbook-to-buffer "org-docbook" "\
+Call `org-export-as-docbook' with output to a temporary buffer.
+No file is created.
+
+\(fn)" t nil)
+
+(autoload 'org-replace-region-by-docbook "org-docbook" "\
+Replace the region from BEG to END with its DocBook export.
+It assumes the region has `org-mode' syntax, and then convert it to
+DocBook.  This can be used in any buffer.  For example, you could
+write an itemized list in `org-mode' syntax in an DocBook buffer and
+then use this command to convert it.
+
+\(fn BEG END)" t nil)
+
+(autoload 'org-export-region-as-docbook "org-docbook" "\
+Convert region from BEG to END in `org-mode' buffer to DocBook.
+If prefix arg BODY-ONLY is set, omit file header and footer and
+only produce the region of converted text, useful for
+cut-and-paste operations.  If BUFFER is a buffer or a string,
+use/create that buffer as a target of the converted DocBook.  If
+BUFFER is the symbol `string', return the produced DocBook as a
+string and leave not buffer behind.  For example, a Lisp program
+could call this function in the following way:
+
+  (setq docbook (org-export-region-as-docbook beg end t 'string))
+
+When called interactively, the output buffer is selected, and shown
+in a window.  A non-interactive call will only retunr the buffer.
+
+\(fn BEG END &optional BODY-ONLY BUFFER)" t nil)
+
+(autoload 'org-export-as-docbook-pdf "org-docbook" "\
+Export as DocBook XML file, and generate PDF file.
+
+\(fn &optional HIDDEN EXT-PLIST TO-BUFFER BODY-ONLY PUB-DIR)" t nil)
+
+(autoload 'org-export-as-docbook-pdf-and-open "org-docbook" "\
+Export as DocBook XML file, generate PDF file, and open it.
+
+\(fn)" t nil)
+
+(autoload 'org-export-as-docbook "org-docbook" "\
+Export the current buffer as a DocBook file.
+If there is an active region, export only the region.  When
+HIDDEN is non-nil, don't display the HTML buffer.  EXT-PLIST is a
+property list with external parameters overriding org-mode's
+default settings, but still inferior to file-local settings.
+When TO-BUFFER is non-nil, create a buffer with that name and
+export to that buffer.  If TO-BUFFER is the symbol `string',
+don't leave any buffer behind but just return the resulting HTML
+as a string.  When BODY-ONLY is set, don't produce the file
+header and footer, simply return the content of the document (all
+top-level sections).  When PUB-DIR is set, use this as the
+publishing directory.
+
+\(fn &optional HIDDEN EXT-PLIST TO-BUFFER BODY-ONLY PUB-DIR)" t nil)
+
+;;;***
+
 ;;;### (autoloads (org-footnote-normalize org-footnote-action) "org-footnote"
-;;;;;;  "lisp/org-footnote.el" (18867 52696))
+;;;;;;  "lisp/org-footnote.el" (18896 38867))
 ;;; Generated autoloads from lisp/org-footnote.el
 
 (autoload 'org-footnote-action "org-footnote" "\
@@ -798,7 +842,7 @@ referenced sequence.
 
 ;;;### (autoloads (org-id-find-id-file org-id-find org-id-goto org-id-get-with-outline-drilling
 ;;;;;;  org-id-get-with-outline-path-completion org-id-get org-id-copy
-;;;;;;  org-id-get-create) "org-id" "lisp/org-id.el" (18867 52696))
+;;;;;;  org-id-get-create) "org-id" "lisp/org-id.el" (18892 46446))
 ;;; Generated autoloads from lisp/org-id.el
 
 (autoload 'org-id-get-create "org-id" "\
@@ -862,7 +906,7 @@ Query the id database for the file in which this ID is located.
 ;;;***
 
 ;;;### (autoloads (org-irc-store-link) "org-irc" "lisp/org-irc.el"
-;;;;;;  (18867 52696))
+;;;;;;  (18892 46446))
 ;;; Generated autoloads from lisp/org-irc.el
 
 (autoload 'org-irc-store-link "org-irc" "\
@@ -874,7 +918,7 @@ Dispatch to the appropriate function to store a link to an IRC session.
 
 ;;;### (autoloads (org-publish-current-project org-publish-current-file
 ;;;;;;  org-publish-all org-publish) "org-publish" "lisp/org-publish.el"
-;;;;;;  (18867 60005))
+;;;;;;  (18892 46446))
 ;;; Generated autoloads from lisp/org-publish.el
 
 (defalias 'org-publish-project 'org-publish)
@@ -906,7 +950,7 @@ the project.
 ;;;***
 
 ;;;### (autoloads (org-plot/gnuplot) "org-plot" "lisp/org-plot.el"
-;;;;;;  (18867 52696))
+;;;;;;  (18892 46446))
 ;;; Generated autoloads from lisp/org-plot.el
 
 (autoload 'org-plot/gnuplot "org-plot" "\
@@ -920,7 +964,7 @@ line directly before or after the table.
 
 ;;;### (autoloads (org-remember-handler org-remember org-remember-apply-template
 ;;;;;;  org-remember-annotation org-remember-insinuate) "org-remember"
-;;;;;;  "lisp/org-remember.el" (18867 52696))
+;;;;;;  "lisp/org-remember.el" (18892 46446))
 ;;; Generated autoloads from lisp/org-remember.el
 
 (autoload 'org-remember-insinuate "org-remember" "\
@@ -995,7 +1039,7 @@ See also the variable `org-reverse-note-order'.
 ;;;***
 
 ;;;### (autoloads (org-table-to-lisp orgtbl-mode turn-on-orgtbl)
-;;;;;;  "org-table" "lisp/org-table.el" (18867 52696))
+;;;;;;  "org-table" "lisp/org-table.el" (18892 46446))
 ;;; Generated autoloads from lisp/org-table.el
 
 (autoload 'turn-on-orgtbl "org-table" "\
@@ -1020,7 +1064,7 @@ The table is taken from the parameter TXT, or from the buffer at point.
 
 ;;;### (autoloads (org-timer-item org-timer-change-times-in-region
 ;;;;;;  org-timer org-timer-start) "org-timer" "lisp/org-timer.el"
-;;;;;;  (18867 52696))
+;;;;;;  (18892 46446))
 ;;; Generated autoloads from lisp/org-timer.el
 
 (autoload 'org-timer-start "org-timer" "\

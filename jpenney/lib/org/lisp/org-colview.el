@@ -6,7 +6,7 @@
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.24a
+;; Version: 6.25
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -88,12 +88,16 @@ This is the compiled version of the format.")
 (org-defkey org-columns-map [down]
 	    (lambda () (interactive)
 	      (let ((col (current-column)))
-		(org-no-warnings (next-line))
+		(beginning-of-line 2)
+		(while (and (org-invisible-p2) (not (eobp)))
+		  (beginning-of-line 2))
 		(move-to-column col))))
 (org-defkey org-columns-map [up]
 	    (lambda () (interactive)
 	      (let ((col (current-column)))
-		(org-no-warnings (previous-line))
+		(beginning-of-line 0)
+		(while (and (org-invisible-p2) (not (bobp)))
+		  (beginning-of-line 0))
 		(move-to-column col))))
 (org-defkey org-columns-map [(shift right)] 'org-columns-next-allowed-value)
 (org-defkey org-columns-map "n" 'org-columns-next-allowed-value)
@@ -291,6 +295,9 @@ for the duration of the command.")
 	  org-columns-previous-hscroll (window-hscroll))
     (force-mode-line-update)))
 
+(defvar org-colview-initial-truncate-line-value nil
+  "Remember the value of `truncate-lines' across colview.")
+
 (defun org-columns-remove-overlays ()
   "Remove all currently active column overlays."
   (interactive)
@@ -308,7 +315,9 @@ for the duration of the command.")
        (let ((inhibit-read-only t))
 	 (remove-text-properties (point-min) (point-max) '(read-only t))))
       (when org-columns-flyspell-was-active
-	(flyspell-mode 1)))))
+	(flyspell-mode 1))
+      (when (local-variable-p 'org-colview-initial-truncate-line-value)
+	(setq truncate-lines org-colview-initial-truncate-line-value)))))
 
 (defun org-columns-cleanup-item (item fmt)
   "Remove from ITEM what is a column in the format FMT."
@@ -669,7 +678,10 @@ around it."
 	    (narrow-to-region beg end)
 	    (org-clock-sum))))
       (while (re-search-forward (concat "^" outline-regexp) end t)
-	(push (cons (org-current-line) (org-entry-properties)) cache))
+	(if (and org-columns-skip-arrchived-trees
+		 (looking-at (concat ".*:" org-archive-tag ":")))
+	    (org-end-of-subtree t)
+	  (push (cons (org-current-line) (org-entry-properties)) cache)))
       (when cache
 	(setq maxwidths (org-columns-get-autowidth-alist fmt cache))
 	(org-set-local 'org-columns-current-maxwidths maxwidths)
@@ -677,6 +689,10 @@ around it."
 	(when (org-set-local 'org-columns-flyspell-was-active
 			     (org-bound-and-true-p flyspell-mode))
 	  (flyspell-mode 0))
+	(unless (local-variable-p 'org-colview-initial-truncate-line-value)
+	  (org-set-local 'org-colview-initial-truncate-line-value
+			 truncate-lines))
+	(setq truncate-lines t)	
 	(mapc (lambda (x)
 		(goto-line (car x))
 		(org-columns-display-here (cdr x)))

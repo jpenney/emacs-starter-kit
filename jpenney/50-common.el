@@ -96,7 +96,8 @@
 (defun jcp-org-load ()
   (progn
     (message "Configuring Org")
-;;    (org-enforce-todo-checkbox-dependencies)
+    ;;    (org-enforce-todo-checkbox-dependencies)
+    (imenu-add-to-menubar "Imenu")
     (setq org-hide-leading-stars 't)
     (setq org-log-done '(note))
     (setq org-log-note-clock-out 't)

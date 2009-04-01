@@ -6,7 +6,7 @@
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.24a
+;; Version: 6.25
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -228,6 +228,27 @@ user each time a remember buffer with a running clock is filed away.  "
 	  (const :tag "Always" t)
 	  (const :tag "Query user" query)))
 
+(defcustom org-remember-backup-directory nil
+  "Directory where to store all remember buffers, for backup purposes.
+After a remember buffer has been stored successfully, the backup file
+will be removed.  However, if you forget to finish the remember process,
+the file will remain there.
+See also `org-remember-auto-remove-backup-files'."
+  :group 'org-remember
+  :type '(choice
+	  (const :tag "No backups" nil)
+	  (directory :tag "Directory")))
+
+(defcustom org-remember-auto-remove-backup-files t
+  "Non-nil means, remove remember backup files after successfully storage.
+When remember is finished successfully, with storing the note at the
+desired target, remove the backup files related to this remember process
+and show a message about remaining backup files, from previous, unfinished
+remember sessions.
+Backup files will only be made at all, when `org-remember-backup-directory'
+is set."
+  :group 'org-remember
+  :type 'boolean)
 
 (defvar annotation) ; from remember.el, dynamically scoped in `remember-mode'
 (defvar initial)    ; from remember.el, dynamically scoped in `remember-mode'
@@ -566,6 +587,15 @@ to be run from that hook to function properly."
 	  (re-search-forward "%&" nil t))
     (replace-match "")
     (org-set-local 'org-jump-to-target-location t))
+  (when org-remember-backup-directory
+    (unless (file-directory-p org-remember-backup-directory)
+      (make-directory org-remember-backup-directory))
+    (setq buffer-file-name
+	  (expand-file-name
+	   (format-time-string "remember-%Y-%m-%d-%H-%M-%S")
+	   org-remember-backup-directory))
+    (save-buffer)
+    (org-set-local 'auto-save-visited-file-name t))
   (when (save-excursion
 	  (goto-char (point-min))
 	  (re-search-forward "%!" nil t))
@@ -612,8 +642,7 @@ from that hook."
 			(y-or-n-p "The clock is running in this buffer.  Clock out now? "))))
       (let (org-log-note-clock-out) (org-clock-out))))
   (when buffer-file-name
-    (save-buffer)
-    (setq buffer-file-name nil))
+    (save-buffer))
   (remember-finalize))
 
 (defun org-remember-kill ()
@@ -746,6 +775,14 @@ See also the variable `org-reverse-note-order'."
   (catch 'quit
     (if org-note-abort (throw 'quit nil))
     (let* ((visitp (org-bound-and-true-p org-jump-to-target-location))
+	   (backup-file
+	    (and buffer-file-name
+		 (equal (file-name-directory buffer-file-name)
+			(file-name-as-directory
+			 (expand-file-name org-remember-backup-directory)))
+		 (string-match "^remember-[0-9]\\{4\\}"
+			       (file-name-nondirectory buffer-file-name))
+		 buffer-file-name))
 	   (previousp (and (member current-prefix-arg '((16) 0))
 			   org-remember-previous-location))
 	   (clockp (equal current-prefix-arg 2))
@@ -800,6 +837,7 @@ See also the variable `org-reverse-note-order'."
       (goto-char (point-min))
       (setq txt (buffer-string))
       (org-save-markers-in-region (point-min) (point-max))
+      (set-buffer-modified-p nil)
       (when (and (eq org-remember-interactive-interface 'refile)
 		 (not fastp))
 	(org-refile nil (or visiting (find-file-noselect file)))
@@ -951,8 +989,22 @@ See also the variable `org-reverse-note-order'."
 	      (if (and (not visiting)
 		       (not (equal (marker-buffer org-clock-marker)
 				   (current-buffer))))
-		  (kill-buffer (current-buffer)))))))))
-
+		  (kill-buffer (current-buffer))))
+	    (when org-remember-auto-remove-backup-files
+	      (when backup-file
+		(ignore-errors
+		  (delete-file backup-file)
+		  (delete-file (concat backup-file "~"))))
+	      (when org-remember-backup-directory
+		(let ((n (length
+			  (directory-files
+			   org-remember-backup-directory nil
+			   "^remember-.*[0-9]$"))))
+		  (when (> n 0)
+		    (message
+		     "%d backup files (unfinished remember calls) in %s" 
+		     n org-remember-backup-directory))))))))))
+  
   t)    ;; return t to indicate that we took care of this note.
 
 (defun org-do-remember (&optional initial)
@@ -995,3 +1047,4 @@ See also the variable `org-reverse-note-order'."
 ;; arch-tag: 497f30d0-4bc3-4097-8622-2d27ac5f2698
 
 ;;; org-remember.el ends here
+

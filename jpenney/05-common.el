@@ -23,4 +23,5 @@
       (package-install package))))
 
 (add-to-ordered-list 'load-path (concat jcp-home "lib/org/lisp") 1)
+(add-to-ordered-list 'load-path (concat jcp-home "lib/org/contrib/lisp") 1)
 (setq todochiku-icons-directory (concat jcp-home "todochiku-icons"))

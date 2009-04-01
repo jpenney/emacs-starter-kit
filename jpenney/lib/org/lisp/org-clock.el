@@ -6,7 +6,7 @@
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 6.24a
+;; Version: 6.25
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -444,13 +444,13 @@ the clocking selection, associated with the letter `d'."
 		(stringp org-clock-into-drawer)
 		(and (integerp org-clock-into-drawer)
 		     (< org-clock-into-drawer 2)))
-	(org-indent-line-function)
 	(insert ":" drawer ":\n:END:\n")
-	(beginning-of-line 0)
-	(org-indent-line-function)
-	(beginning-of-line 0)
+        (beginning-of-line -1)
+        (org-indent-line-function)
 	(org-flag-drawer t)
-	(beginning-of-line 2)
+        (beginning-of-line 2)
+        (org-indent-line-function)
+	(beginning-of-line)
 	(or org-log-states-order-reversed
 	    (and (re-search-forward org-property-end-re nil t)
 		 (goto-char (match-beginning 0))))))))
@@ -663,7 +663,10 @@ This is used to stop the clock after a TODO entry is marked DONE,
 and is only done if the variable `org-clock-out-when-done' is not nil."
   (when (and org-clock-out-when-done
 	     (member state org-done-keywords)
-	     (equal (marker-buffer org-clock-marker) (current-buffer))
+	     (equal (or (buffer-base-buffer (marker-buffer org-clock-marker))
+			(marker-buffer org-clock-marker))
+		    (or (buffer-base-buffer (current-buffer))
+			(current-buffer)))
 	     (< (point) org-clock-marker)
 	     (> (save-excursion (outline-next-heading) (point))
 		org-clock-marker))
