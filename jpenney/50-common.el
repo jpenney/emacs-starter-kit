@@ -1,7 +1,8 @@
 (message "50-common")
 
 (add-to-list 'bcc-blacklist (concat jcp-home "lib/org/.*"))
-(require 'org-install)
+(load-library  (concat jcp-home "lib/org/lisp/org-install"))
+
 
 ;; yasnippet
 (jcp-elpa-install-package 'yasnippet-bundle)
@@ -19,6 +20,7 @@
 (setq inhibit-startup-message)
 (pc-selection-mode 't)
 (setq ispell-program-name "aspell")
+(setq ispell-extra-args '("--sug-mode=ultra"))
 
 ;; server mode
 ;(cond 
