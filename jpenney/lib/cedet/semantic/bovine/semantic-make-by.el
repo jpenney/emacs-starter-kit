@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2008 Eric M. Ludlam
 
-;; Author: Jason Penney <jpenney@mini.local>
-;; Created: 2008-12-31 09:13:28-0500
+;; Author:  <jpenney@JPENNEY>
+;; Created: 2009-03-09 16:34:24-0400
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 

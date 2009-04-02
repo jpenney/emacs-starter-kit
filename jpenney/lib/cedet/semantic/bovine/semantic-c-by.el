@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Eric M. Ludlam
 
-;; Author: Jason Penney <jpenney@mini.local>
-;; Created: 2009-03-01 08:39:01-0500
+;; Author:  <jpenney@JPENNEY>
+;; Created: 2009-03-09 16:34:22-0400
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 
@@ -825,6 +825,17 @@
       namespace-symbol
       ,(semantic-lambda
 	(nth 2 vals))
+      )
+     (semantic-list
+      ,(semantic-lambda
+	(list
+	 (nth 0 vals)))
+      )
+     (SIZEOF
+      semantic-list
+      ,(semantic-lambda
+	(list
+	 (nth 1 vals)))
       )
      ) ;; end template-var
 

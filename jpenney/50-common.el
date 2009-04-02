@@ -1,7 +1,35 @@
 (message "50-common")
-;;(color-theme-initialize)
 
+(add-to-list 'bcc-blacklist (concat jcp-home "lib/org/.*"))
+(load-library  (concat jcp-home "lib/org/lisp/org-install"))
+
+
+;; yasnippet
+(jcp-elpa-install-package 'yasnippet-bundle)
+
+
+(unless (file-exists-p jcp-yasnippets)
+    (make-directory jcp-yasnippets))
+(yas/initialize)
+(yas/load-directory jcp-yasnippets)
+
+;; icicles
+(require 'icicles-install)
+(unless (file-exists-p icicle-download-dir)
+  (progn
+    (make-directory icicle-download-dir)
+    (icicle-download-all-files)))
+(require 'icicles)
+
+;; color-theme
+(require 'color-theme)
+(color-theme-initialize)
+
+(setq inhibit-startup-message)
+(pc-selection-mode 't)
 (setq ispell-program-name "aspell")
+(setq ispell-extra-args '("--sug-mode=ultra"))
+
 ;; server mode
 ;(cond 
 ; (window-system
@@ -28,8 +56,12 @@
 
 ;;
 ;; Load CEDET
-(load-file (concat jcp-home "lib/cedet/common/cedet.el"))
-(load-save-place-alist-from-file)
+(add-to-list 'bcc-blacklist (concat jcp-home "lib/cedet/.*"))
+(let ((bcc-enabled 'nil)
+      (byte-compile-verbose 'nil)
+      (byte-compile-warnings ()))
+  (load-file (concat jcp-home "lib/cedet/common/cedet.el"))
+  (load-save-place-alist-from-file)
 
 
 ;; Enabling various SEMANTIC minor modes.  See semantic/INSTALL for more ideas.
@@ -44,7 +76,7 @@
 
 ;; * This enables even more coding tools such as the nascent intellisense mode
 ;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-(semantic-load-enable-guady-code-helpers)
+  (semantic-load-enable-guady-code-helpers)
 
 ;; * This turns on which-func support (Plus all other code helpers)
 ;;(semantic-load-enable-excessive-code-helpers)
@@ -54,9 +86,10 @@
 ;; helpers above.
 ;; (semantic-load-enable-semantic-debugging-helpers)
 
-(add-to-list 'load-path (concat jcp-home "lib/ecb"))
-(require 'ecb)
-
+  (add-to-list 'load-path (concat jcp-home "lib/ecb"))
+  (require 'ecb)
+  (ecb-byte-compile)
+  )
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 (setq interpreter-mode-alist (cons '("python" . python-mode)
                                    interpreter-mode-alist))
@@ -68,6 +101,22 @@
 (autoload 'pymacs-exec "pymacs" nil t)
 (autoload 'pymacs-load "pymacs" nil t)
 
+(defun jcp-org-load ()
+  (progn
+    (message "Configuring Org")
+    ;;    (org-enforce-todo-checkbox-dependencies)
+    (imenu-add-to-menubar "Imenu")
+    (setq org-hide-leading-stars 't)
+    (setq org-log-done '(note))
+    (setq org-log-note-clock-out 't)
+    (setq org-export-with-archived-trees nil)
+    (setq org-enforce-todo-checkbox-dependencies 't)
+    (setq org-special-ctrl-k 't)
+    (setq org-agenda-dim-blocked-tasks 't)
+    ))
+
+(add-hook 'org-mode-hook 'jcp-org-load) 
+
 (defcustom my-window-setup-hook nil
   "Hook for window-setup"
   :type 'hook)
@@ -77,12 +126,16 @@
    (tool-bar-mode 1)
    (tooltip-mode 1)   
    (menu-bar-mode 1)
+   (icy-mode 1)
    (run-hooks 'my-window-setup-hook)
    )
+
+
 
 (defun my-after-make-frame (win)
   (my-window-setup)
   )
+
 
 (add-hook 'window-setup-hook 'my-window-setup)
 (add-to-list 'after-make-frame-functions 'my-after-make-frame)
@@ -93,4 +146,13 @@
              (setq outline-regexp "def\\|class ")
              ) t)
 
+
+
 (my-window-setup)
+
+(autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
+(setq auto-mode-alist (cons '("\\.cs$" . csharp-mode) auto-mode-alist))
+
+(cond 
+ (window-system
+  (require 'todochiku)))

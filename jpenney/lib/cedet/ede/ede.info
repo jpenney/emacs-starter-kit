@@ -1,4 +1,4 @@
-This is ede.info, produced by makeinfo version 4.12 from ede.texi.
+This is ede.info, produced by makeinfo version 4.8 from ede.texi.
 
 START-INFO-DIR-ENTRY
 * ede: (ede).       Objects for Emacs
@@ -42,7 +42,7 @@ EDE is a generic interface for managing projects.  In other words,
 there is one set of menus and keybindings specified by EDE, but there
 are multiple ways a project can be expressed via a build system.
 
-   You can learn about multiple *note Project types::, or the specific
+   You can learn about multiple *Note Project types::, or the specific
 build or debug commands in other chapters.
 
    In EDE, a project hierarchy matches a directory hierarchy.  There
@@ -240,7 +240,7 @@ customize the project or target with `customize-project' or
 
    When you are customizing, you are directly manipulating slot values
 in EIEIO objects.  If you are interested in additional details, see
-*note Extending EDE::
+*Note Extending EDE::
 
 * Menu:
 
@@ -258,7 +258,7 @@ to customize the desired target.
 
    In the `[Make]' section, you can then choose a new compiler or
 linker from the list.  If a linker you need is not available, you will
-need to create a new one.  *note Compiler and Linker objects::.
+need to create a new one.  *Note Compiler and Linker objects::.
 
    If an existing compiler or linker is close, but you need to modify
 some flag set such as adding an include path you will need to add a
@@ -267,7 +267,7 @@ configuration variable.
    To start, you should create the basic setup, and construct a makefile
 with `ede-proj-regenerate'.  Look in the `Makefile' to see what
 commands are inserted.  Once you have determined the variable you need
-to modify, you can add a configuration for it.  *note Configurations::.
+to modify, you can add a configuration for it.  *Note Configurations::.
 
 
 File: ede.info,  Node: Configurations,  Prev: Changing Compilers and Flags,  Up: EDE Project Features
@@ -623,7 +623,7 @@ however, EDE can use it.
 
    To enable one of these tools, set the variable
 `ede-locate-setup-options' with the names of different locate objects.
-*note Miscellaneous commands::.
+*Note Miscellaneous commands::.
 
    Configure this in your `.emacs' before loading in CEDET or EDE.  If
 you want to add support for GNU Global, your configuration would look
@@ -661,7 +661,7 @@ saved, or how a target is compiled can be customized by a project
 author in detail.  EDE communicates to these project objects via an API
 using methods.  The commands you use in EDE mode are high-level
 functional wrappers over these methods.  For details on different types
-of projects, *note Project types::.  *note (eieio)Top::. For details on
+of projects, *Note Project types::.  *Note (eieio)Top::. For details on
 using EIEIO to extending classes, and writing methods.
 
    If you intend to extend EDE, it is most likely that a new target
@@ -679,7 +679,7 @@ fields to track important information.
    If you are building currently unsupported code into a program or
 shared library, it is unlikely you need a new target at all.  Instead
 you would need to create a new compiler or linker object that compiles
-source code of the desired type. *note Compiler and Linker objects::.
+source code of the desired type. *Note Compiler and Linker objects::.
 
    Once your new class exists, you will want to fill in some basic
 methods.  See the `ede-skel.el' file for examples of these.  The files
@@ -5009,88 +5009,88 @@ Slots:
 
 
 Tag Table:
-Node: Top147
-Node: EDE Project Concepts1373
-Node: EDE Mode2987
-Node: Creating a project3793
-Node: Modifying your project5868
-Node: Add/Remove target6350
-Node: Add/Remove files7118
-Node: Customize Features8193
-Node: EDE Project Features9130
-Node: Changing Compilers and Flags9856
-Node: Configurations10813
-Node: Building and Debugging11697
-Node: Miscellaneous commands12442
-Ref: ede-locate-setup-options13348
-Node: Project types14102
-Node: Make and Automake projects15179
-Node: Automake direct projects15822
-Node: Simple projects16406
-Node: ede-cpp-root17462
-Node: ede-simple subclassing22213
-Node: ede-emacs22466
-Node: ede-linux22848
-Node: Custom Locate23230
-Node: Extending EDE24709
-Node: User interface methods27175
-Node: Base project methods28397
-Node: Sourcecode objects29764
-Node: Compiler and Linker objects31467
-Node: Project33963
-Node: ede-project-placeholder34358
-Node: ede-project36415
-Node: ede-cpp-root-project45913
-Node: ede-emacs-project50870
-Node: ede-linux-project52638
-Node: ede-maven-project54403
-Node: ede-simple-project55999
-Node: ede-simple-base-project57253
-Node: ede-proj-project57792
-Node: project-am-makefile64701
-Node: ede-step-project66834
-Node: Targets71470
-Node: ede-target72608
-Node: ede-cpp-root-target79066
-Node: ede-emacs-target-c79982
-Node: ede-emacs-target-el80844
-Node: ede-emacs-target-misc81517
-Node: ede-linux-target-c82198
-Node: ede-linux-target-misc83064
-Node: ede-maven-target-java83747
-Node: ede-maven-target-c84430
-Node: ede-maven-target-misc85101
-Node: ede-simple-target85782
-Node: ede-proj-target86444
-Node: ede-proj-target-makefile92721
-Node: semantic-ede-proj-target-grammar96137
-Node: ede-proj-target-makefile-objectcode97845
-Node: ede-proj-target-makefile-archive99717
-Node: ede-proj-target-makefile-program101155
-Node: ede-proj-target-makefile-shared-object103362
-Node: ede-proj-target-elisp105384
-Node: ede-proj-target-elisp-autoloads107594
-Node: ede-proj-target-makefile-miscelaneous111275
-Node: ede-proj-target-makefile-info112790
-Node: ede-proj-target-aux115513
-Node: ede-proj-target-scheme116418
-Node: project-am-target117468
-Node: project-am-objectcode119367
-Node: project-am-program120815
-Node: project-am-lib121819
-Node: project-am-header122716
-Node: project-am-header-noinst123704
-Node: project-am-header-inst124685
-Node: project-am-lisp125656
-Node: project-am-texinfo126711
-Node: project-am-man128198
-Node: Sourcecode129217
-Node: ede-sourcecode129435
-Node: Compilers132131
-Node: ede-compilation-program132582
-Node: ede-compiler135853
-Node: ede-object-compiler138992
-Node: semantic-ede-grammar-compiler-class141193
-Node: ede-linker143081
+Node: Top146
+Node: EDE Project Concepts1372
+Node: EDE Mode2986
+Node: Creating a project3792
+Node: Modifying your project5867
+Node: Add/Remove target6349
+Node: Add/Remove files7117
+Node: Customize Features8192
+Node: EDE Project Features9129
+Node: Changing Compilers and Flags9855
+Node: Configurations10812
+Node: Building and Debugging11696
+Node: Miscellaneous commands12441
+Ref: ede-locate-setup-options13347
+Node: Project types14101
+Node: Make and Automake projects15178
+Node: Automake direct projects15821
+Node: Simple projects16405
+Node: ede-cpp-root17461
+Node: ede-simple subclassing22212
+Node: ede-emacs22465
+Node: ede-linux22847
+Node: Custom Locate23229
+Node: Extending EDE24708
+Node: User interface methods27174
+Node: Base project methods28396
+Node: Sourcecode objects29763
+Node: Compiler and Linker objects31466
+Node: Project33962
+Node: ede-project-placeholder34357
+Node: ede-project36414
+Node: ede-cpp-root-project45912
+Node: ede-emacs-project50869
+Node: ede-linux-project52637
+Node: ede-maven-project54402
+Node: ede-simple-project55998
+Node: ede-simple-base-project57252
+Node: ede-proj-project57791
+Node: project-am-makefile64700
+Node: ede-step-project66833
+Node: Targets71469
+Node: ede-target72607
+Node: ede-cpp-root-target79065
+Node: ede-emacs-target-c79981
+Node: ede-emacs-target-el80843
+Node: ede-emacs-target-misc81516
+Node: ede-linux-target-c82197
+Node: ede-linux-target-misc83063
+Node: ede-maven-target-java83746
+Node: ede-maven-target-c84429
+Node: ede-maven-target-misc85100
+Node: ede-simple-target85781
+Node: ede-proj-target86443
+Node: ede-proj-target-makefile92720
+Node: semantic-ede-proj-target-grammar96136
+Node: ede-proj-target-makefile-objectcode97844
+Node: ede-proj-target-makefile-archive99716
+Node: ede-proj-target-makefile-program101154
+Node: ede-proj-target-makefile-shared-object103361
+Node: ede-proj-target-elisp105383
+Node: ede-proj-target-elisp-autoloads107593
+Node: ede-proj-target-makefile-miscelaneous111274
+Node: ede-proj-target-makefile-info112789
+Node: ede-proj-target-aux115512
+Node: ede-proj-target-scheme116417
+Node: project-am-target117467
+Node: project-am-objectcode119366
+Node: project-am-program120814
+Node: project-am-lib121818
+Node: project-am-header122715
+Node: project-am-header-noinst123703
+Node: project-am-header-inst124684
+Node: project-am-lisp125655
+Node: project-am-texinfo126710
+Node: project-am-man128197
+Node: Sourcecode129216
+Node: ede-sourcecode129434
+Node: Compilers132130
+Node: ede-compilation-program132581
+Node: ede-compiler135852
+Node: ede-object-compiler138991
+Node: semantic-ede-grammar-compiler-class141192
+Node: ede-linker143080
 
 End Tag Table

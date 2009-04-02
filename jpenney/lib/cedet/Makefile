@@ -5,7 +5,7 @@
 ## Author: David Ponce <david@dponce.com>
 ## Maintainer: CEDET developers <http://sf.net/projects/cedet>
 ## Created: 12 Sep 2003
-## X-RCS: $Id: Makefile,v 1.21 2009/02/24 03:17:19 zappo Exp $
+## X-RCS: $Id: Makefile,v 1.23 2009/03/08 16:31:53 zappo Exp $
 ##
 ## This program is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -40,9 +40,9 @@ contrib \
 tests
 
 ## Path to your Emacs
-#EMACS=emacs
-EMACS=/Applications/MacPorts/Emacs.app/Contents/MacOS/Emacs
+EMACS=emacs
 EMACSFLAGS=-batch --no-site-file
+#EMACSFLAGS=-batch -eval ''
 
 ## Your shell (On Windows/Cygwin I recommend to use bash)
 #SHELL=bash
@@ -52,9 +52,9 @@ FIND=find
 #RM = rm -f
 
 ## INSTALL PATHS
-PREFIX=/Applications/MacPorts/Emacs.app/Contents/Resources/
+PREFIX=/usr/local
 
-INFO_DIR=$(PREFIX)/info
+INFO_DIR=$(PREFIX)/share/info
 
 INSTALL_INFO=ginstall-info
 
@@ -82,6 +82,10 @@ packages: $(CEDET_PACKAGES)
 .PHONY: $(CEDET_PACKAGES)
 $(CEDET_PACKAGES):
 	cd $(CEDET_HOME)/$@ && $(__DOMAKE)
+
+.PHONY: ebuild
+ebuild:
+	$(EMACS) -q -batch --no-site-file -l cedet-build.el -f cedet-build
 
 ## Update
 ##
@@ -134,9 +138,12 @@ clean-all: clean clean-elc clean-info clean-grammars clean-autoloads
 
 ### UNIT TEST Harness
 ## Run the master CEDET unit-test suite.
-.PHONY: utest
+.PHONY: utest itest
 utest:
 	$(EMACS) $(EMACSFLAGS) -l "common/cedet.el" -f cedet-utest-batch
+
+itest:
+	cd tests; ./cit-test.sh
 
 ### Install info files
 ## Thanks Stefano Sabatini for the info install patch.
