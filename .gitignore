@@ -6,7 +6,7 @@ custom.el
 places
 url/cookies
 elpa-to-submit/jabber/jabber.info
-elpa-to-submit/nxhtml/etc/schema/xhtml-loader.rnc
+elpa-to-submit/nxhtml/etc/schema/xhtml-loader.rnc*
 thumbs/*
 oddmuse/*
 .newsrc-dribble
@@ -15,7 +15,6 @@ oddmuse/*
 .svn
 .DS_Store
 */#*#
-elpa-to-submit/nxhtml/etc/schema/xhtml-loader.rnc~
 */CVS/*.Extra
 **/CVS/*.Extra
 CVS/Entries.Old
@@ -23,3 +22,4 @@ Entries.Old
 Entries.Extra
 Entries.Extra.Old
 .org-id-locations
+
