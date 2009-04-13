@@ -90,16 +90,41 @@
   (require 'ecb)
   (ecb-byte-compile)
   )
-(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
-(setq interpreter-mode-alist (cons '("python" . python-mode)
-                                   interpreter-mode-alist))
-(autoload 'python-mode "python-mode" "Python editing mode." t)
 
+
+
+;;;;;;;;;;;;
+;; Python
+;;;;;;;;;;;;
+(setq py-python-command-args '( "-colors" "Linux"))
+(require 'ipython)
+(autoload 'python-mode "python-mode" "Python Mode." t)
+(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+
+(setq interpreter-mode-alist
+      (cons '("python" . python-mode)
+            interpreter-mode-alist)
+      python-mode-hook
+      '(lambda () (progn
+               ;;
+               )
+         )
+      )
+
+
+;; pymacs
 (autoload 'pymacs-apply "pymacs")
 (autoload 'pymacs-call "pymacs")
 (autoload 'pymacs-eval "pymacs" nil t)
 (autoload 'pymacs-exec "pymacs" nil t)
 (autoload 'pymacs-load "pymacs" nil t)
+;;(eval-after-load "pymacs"
+;;  '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
+(pymacs-load "ropemacs" "rope-")
+(setq ropemacs-enable-autoimport t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun jcp-org-load ()
   (progn
