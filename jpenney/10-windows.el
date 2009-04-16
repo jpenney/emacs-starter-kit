@@ -21,11 +21,8 @@
       (setq browse-url-browser-function
             'browse-url-default-windows-browser)
 
-      
       (defvar jcp-cygwin-bin  (file-name-directory (executable-find "cygpath")))
-      (setenv "PATH" (concat jcp-cygwin-bin ";" (getenv "PATH")))
-      (setq exec-path (cons jcp-cygwin-bin exec-path))
-
+      (jcp-exec-path-prepend jcp-cygwin-bin)
       (require 'w32shell)
       (setq w32shell-cygwin-bin jcp-cygwin-bin)
       (w32shell-set-shell "cygwin")

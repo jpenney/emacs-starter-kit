@@ -1,6 +1,8 @@
 (if (string-match jcp-systype "darwin")
     (progn
       (message "init darwin")
+      (jcp-exec-path-prepend "/opt/local/bin")
+      (jcp-exec-path-prepend "/usr/local/bin")
       ;; fix a mac-specific problem with ptys
       (setq process-connection-type nil)
       ;; repair bogus default directory

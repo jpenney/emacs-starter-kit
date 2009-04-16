@@ -25,6 +25,20 @@
       (message "Installing %s" (symbol-name package))
       (package-install package))))
 
+(defun jcp-exec-path-prepend (newpath)
+  "Prepend new path into 'PATH' environment and exec-path"
+  (progn
+    (setenv "PATH" (concat newpath path-separator (getenv "PATH")))
+    (add-to-ordered-list 'exec-path newpath 1)
+    ))
+
+(defun jcp-exec-path-append (newpath)
+   "Prepend new path into 'PATH' environment and exec-path"
+  (progn
+    (setenv "PATH" (concat (getenv "PATH") path-separator newpath))
+    (add-to-list 'exec-path newpath)
+    ))
+
 (add-to-ordered-list 'load-path (concat jcp-home "lib/org/lisp") 1)
 (add-to-ordered-list 'load-path (concat jcp-home "lib/org/contrib/lisp") 1)
 (setq todochiku-icons-directory (concat jcp-home "todochiku-icons"))
