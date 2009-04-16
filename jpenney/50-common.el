@@ -1,6 +1,7 @@
 (message "50-common")
 
 (add-to-list 'bcc-blacklist (concat jcp-home "lib/org/.*"))
+(require 'flyspell)
 (load-library  (concat jcp-home "lib/org/lisp/org-install"))
 
 
@@ -90,6 +91,10 @@
   (require 'ecb)
   (ecb-byte-compile)
   )
+
+
+(let ((jcp-python-path (shell-command-to-string "python-config --prefix")))
+  (setq exec-path (cons (concat jcp-python-path "/bin") exec-path)))
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 (setq interpreter-mode-alist (cons '("python" . python-mode)
                                    interpreter-mode-alist))
@@ -102,9 +107,10 @@
 (autoload 'pymacs-load "pymacs" nil t)
 
 (defun jcp-org-load ()
-  (progn
+  (progn   
     (message "Configuring Org")
     ;;    (org-enforce-todo-checkbox-dependencies)
+
     (imenu-add-to-menubar "Imenu")
     (setq org-hide-leading-stars 't)
     (setq org-log-done '(note))
