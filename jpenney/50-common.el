@@ -96,6 +96,17 @@
 ;;;;;;;;;;;;
 ;; Python
 ;;;;;;;;;;;;
+
+(let ((prefix  (shell-command-to-string "python-config --prefix"))
+      (exec-prefix (shell-command-to-string "python-config --exec-prefix")))
+  
+  (jcp-exec-path-prepend (concat (substring prefix 0 (- (length prefix) 1))
+                                 "/bin"))
+  (jcp-exec-path-prepend (concat (substring exec-prefix 0
+                                            (- (length exec-prefix) 1))
+                                 "/bin"))
+)
+  
 (setq py-python-command-args '( "-colors" "Linux"))
 (require 'ipython)
 (autoload 'python-mode "python-mode" "Python Mode." t)
