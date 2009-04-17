@@ -1,7 +1,19 @@
 (message "50-common")
 
 (add-to-list 'bcc-blacklist (concat jcp-home "lib/org/.*"))
-(require 'flyspell)
+
+;; flyspell setup
+(autoload 'flyspell-mode-on "flyspell" "On-the-fly ispell." t)
+(autoload 'flyspell-mode "flyspell" "On-the-fly ispell." t)
+(autoload 'flyspell-prog-mode "flyspell" "On-the-fly ispell." t)
+
+(dolist (hook '(text-mode-hook org-mode-hook cc-mode-hook python-mode-hook
+                               lisp-mode-hook emacs-lisp-mode-hook
+                ))
+              (add-hook hook (lambda () (flyspell-mode 1))))
+;;(dolist (hook '(python-mode cc-mode))
+ ;;     (add-hook hook (lambda () (flyspell-prog-mode 1))))
+
 (load-library  (concat jcp-home "lib/org/lisp/org-install"))
 
 
@@ -61,35 +73,17 @@
 (let ((bcc-enabled 'nil)
       (byte-compile-verbose 'nil)
       (byte-compile-warnings ()))
+  (setq semantic-load-turn-useful-things-on t)
   (load-file (concat jcp-home "lib/cedet/common/cedet.el"))
   (load-save-place-alist-from-file)
-
-
-;; Enabling various SEMANTIC minor modes.  See semantic/INSTALL for more ideas.
-;; Select one of the folloiing:
-
-;; * This enables the database and idle reparse engines
-;;(semantic-load-enable-minimum-features)
-
-;; * This enables some tools useful for coding, such as summary mode
-;;   imenu support, and the semantic navigator
-;; (semantic-load-enable-code-helpers)
-
-;; * This enables even more coding tools such as the nascent intellisense mode
-;;   decoration mode, and stickyfunc mode (plus regular code helpers)
-  (semantic-load-enable-guady-code-helpers)
-
-;; * This turns on which-func support (Plus all other code helpers)
-;;(semantic-load-enable-excessive-code-helpers)
-
-;; This turns on modes that aid in grammar writing and semantic tool
-;; development.  It does not enable any other features such as code
-;; helpers above.
-;; (semantic-load-enable-semantic-debugging-helpers)
-
   (add-to-list 'load-path (concat jcp-home "lib/ecb"))
-  (require 'ecb)
-  (ecb-byte-compile)
+  (unless (require 'ecb-autoloads nil t)
+    (progn
+      (require 'ecb-autogen)
+      (ecb-update-autoloads)
+      (require 'ecb-autoloads)
+      (ecb-byte-compile)))
+;;  (ecb-byte-compile)
   )
 
 ;;;;;;;;;;;;
@@ -107,32 +101,33 @@
 )
   
 (setq py-python-command-args '( "-colors" "Linux"))
-(require 'ipython)
+
 (autoload 'python-mode "python-mode" "Python Mode." t)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
-(setq interpreter-mode-alist
-      (cons '("python" . python-mode)
-            interpreter-mode-alist)
-      python-mode-hook
-      '(lambda () (progn
-               ;;
-               )
-         )
-      )
+(add-hook 'python-mode-hook
+          '(lambda () (progn
+                   (require 'ipython)
+                   (autoload 'pymacs-apply "pymacs")
+                   (autoload 'pymacs-call "pymacs")
+                   (autoload 'pymacs-eval "pymacs" nil t)
+                   (autoload 'pymacs-exec "pymacs" nil t)
+                   (autoload 'pymacs-load "pymacs" nil t)
+                   (pymacs-load "ropemacs" "rope-")
+                   (eldoc-mode 1)
+                   (set (make-variable-buffer-local
+                         'beginning-of-defun-function)
+                        'py-beginning-of-def-or-class)
+                   (setq outline-regexp "def\\|class ")
+                   )))
 
 
 ;; pymacs
-(autoload 'pymacs-apply "pymacs")
-(autoload 'pymacs-call "pymacs")
-(autoload 'pymacs-eval "pymacs" nil t)
-(autoload 'pymacs-exec "pymacs" nil t)
-(autoload 'pymacs-load "pymacs" nil t)
+(setq ropemacs-enable-autoimport t)
+
 ;;(eval-after-load "pymacs"
 ;;  '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
-(pymacs-load "ropemacs" "rope-")
-(setq ropemacs-enable-autoimport t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -175,12 +170,6 @@
 
 (add-hook 'window-setup-hook 'my-window-setup)
 (add-to-list 'after-make-frame-functions 'my-after-make-frame)
-(add-hook 'python-mode-hook
-          '(lambda () (eldoc-mode 1)
-             (set (make-variable-buffer-local 'beginning-of-defun-function)
-                  'py-beginning-of-def-or-class)
-             (setq outline-regexp "def\\|class ")
-             ) t)
 
 
 
