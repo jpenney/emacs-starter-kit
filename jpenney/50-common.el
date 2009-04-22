@@ -38,7 +38,7 @@
 (require 'color-theme)
 (color-theme-initialize)
 
-(setq inhibit-startup-message)
+(setq inhibit-startup-message 't)
 (pc-selection-mode 't)
 (setq ispell-program-name "aspell")
 (setq ispell-extra-args '("--sug-mode=ultra"))
