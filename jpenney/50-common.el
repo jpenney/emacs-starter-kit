@@ -86,6 +86,12 @@
 ;;  (ecb-byte-compile)
   )
 
+;;;;;;;;;;;
+;; auto-complete
+;;;;;;;;;;;
+(add-to-list 'load-path (concat jcp-home "lib/auto-complete"))
+(load-library  (concat jcp-home "lib/auto-complete/init-auto-complete"))
+
 ;;;;;;;;;;;;
 ;; Python
 ;;;;;;;;;;;;
@@ -181,3 +187,4 @@
 (cond 
  (window-system
   (require 'todochiku)))
+
