@@ -26,13 +26,6 @@
 (yas/initialize)
 (yas/load-directory jcp-yasnippets)
 
-;; icicles
-(require 'icicles-install)
-(unless (file-exists-p icicle-download-dir)
-  (progn
-    (make-directory icicle-download-dir)
-    (icicle-download-all-files)))
-(require 'icicles)
 
 ;; color-theme
 (require 'color-theme)
@@ -135,6 +128,21 @@
 ;;(eval-after-load "pymacs"
 ;;  '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
 
+;;;;;;;;;;
+;; php
+;;;;;;;;;;
+(require 'php-mode)
+(require 'php-doc nil t)
+(add-hook 'php-mode-hook
+          (lambda ()
+;;            (local-set-key "\t" 'php-doc-complete-function)
+ ;;           (local-set-key (kbd "\C-c h") 'php-doc)
+            (set (make-local-variable 'eldoc-documentation-function)
+                 'php-doc-eldoc-function)
+            (eldoc-mode 1)
+            ))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun jcp-org-load ()
@@ -154,6 +162,29 @@
 
 (add-hook 'org-mode-hook 'jcp-org-load) 
 
+
+;; icicles
+
+
+(defun jcp-icicle-mode-hook()
+  (dolist (map (append (list minibuffer-local-completion-map
+                             minibuffer-local-must-match-map)
+                       (and (fboundp 'minibuffer-local-filename-completion-map)
+                            (list minibuffer-local-filename-completion-map))))
+    (when icicle-mode
+      (define-key map [s-up] 'previous-history-element)
+      (define-key map [s-up] 'next-history-element)))
+  )
+
+(require 'icicles-install)
+(unless (file-exists-p icicle-download-dir)
+  (progn
+    (make-directory icicle-download-dir)
+    (icicle-download-all-files)))
+(require 'icicles)
+
+(add-hook 'icicle-mode-hook 'jcp-icicle-mode-hook)
+
 (defcustom my-window-setup-hook nil
   "Hook for window-setup"
   :type 'hook)
@@ -165,6 +196,7 @@
    (menu-bar-mode 1)
    (icy-mode 1)
    (run-hooks 'my-window-setup-hook)
+   (require 'todochiku)
    )
 
 
@@ -184,7 +216,17 @@
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
 (setq auto-mode-alist (cons '("\\.cs$" . csharp-mode) auto-mode-alist))
 
-(cond 
- (window-system
-  (require 'todochiku)))
+
+
+
+;  (defun jcp-confirm-kill-emacs (prompt)
+;    (interactive)
+;    (if (y-or-n-p prompt)
+;        (progn 
+;                (server-edit)
+;                (make-frame-invisible nil t)
+;                nil)
+;      )
+;    nil)
+;    (setq confirm-kill-emacs 'jcp-confirm-kill-emacs)
 

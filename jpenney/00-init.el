@@ -1,9 +1,9 @@
-(require 'server)
-(unless server-process
-  (progn
-    (message "starting server")
-    (server-start)
-))
+;(require 'server)
+;(unless server-process
+;  (progn
+;    (message "starting server")
+;    (server-start)
+;))
 
 ;; set up path
 (defvar jcp-home (file-name-directory
