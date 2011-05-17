@@ -21,6 +21,3 @@ The resulting name is always an absolute path to a file ending in
 
 (defalias 'bcc-cache-file-name 'jcp-bcc-cache-file-name)
 (message "patching bcc-cache-file-name")
-
-
-

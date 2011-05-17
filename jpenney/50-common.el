@@ -13,10 +13,40 @@
                                cperl-mode-hook
                 ))
               (add-hook hook (lambda () (flyspell-mode 1))))
-;;(dolist (hook '(python-mode cc-mode))
- ;;     (add-hook hook (lambda () (flyspell-prog-mode 1))))
+(dolist (hook '(python-mode cc-mode))
+  (add-hook hook (lambda () (flyspell-prog-mode 1))))
 
 (load-library  (concat jcp-home "lib/org/lisp/org-install"))
+
+;; flymake
+(setq flymake-log-level 3)
+(setq flymake-extension-auto-show t)
+(require 'flymake)
+(require 'flymake-extension)
+
+
+(defun flymake-pylint-init (&optional trigger-type)
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-inplace))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name)))
+         (options (when trigger-type (list "--trigger-type" trigger-type))))
+    (list (concat jcp-home "bin/pyflymake.py")
+          (append options (list local-file)))))
+
+;    (list "~/.emacs.d/jpenney/bin/pyflymake.py" (append options (list local-file)))))
+(add-to-list 'flymake-allowed-file-name-masks
+             '("\\.py\\'" flymake-pylint-init))
+
+
+(defun jcp-flymake-show-help ()
+  (when (get-char-property (point) 'flymake-overlay)
+    (let ((help (get-char-property (point) 'help-echo)))
+      (if help (message "%s" help)))))
+
+(add-hook 'post-command-hook 'jcp-flymake-show-help)
+
 
 
 (setq flymake-extension-auto-show t)
@@ -123,20 +153,21 @@
                                  "/bin"))
 )
 
+
 (autoload 'python-mode "python-mode" "Python Mode." t)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
+(setq ropemacs-enable-shortcuts nil)
+(setq ropemacs-local-prefix "C-c C-p")
 (require 'pymacs)
+(pymacs-load "ropemacs" "rope-")
 
-(when (load "flymake" t)
-  (defun flymake-pycheckers-init ()
-    (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                       'flymake-create-temp-inplace))
-           (local-file (file-relative-name
-                        temp-file
-                        (file-name-directory buffer-file-name))))
-      (list "/Users/jpenney/.emacs.d/jpenney/bin/pycheckers"  (list local-file)))))
+
+(setq ropemacs-confirm-saving nil
+      ropemacs-guess-project t
+      ropemacs-enable-autoimport t
+      )
 
 
 (add-to-list 'flymake-allowed-file-name-masks
@@ -152,6 +183,7 @@
 (add-hook 'python-mode-hook 
           (lambda ()
             (require 'ipython)
+            (require 'pythontidy-mode)
             (setq python-python-command "ipython")
             (setq py-python-command-args '( "-colors" "Linux"))
 
@@ -159,6 +191,8 @@
             (unless (eq buffer-file-name nil) (flymake-mode 1)) 
             (local-set-key [f2] 'flymake-goto-prev-error)
             (local-set-key [f3] 'flymake-goto-next-error)
+                                        ;(pythontidy-mode t)
+            (eldoc-mode 1)
             ))
 
 
@@ -318,7 +352,7 @@
    (tool-bar-mode 1)
    (tooltip-mode 1)   
    (menu-bar-mode 1)
-   (icy-mode 1)
+   ;(icy-mode 1)
    (run-hooks 'my-window-setup-hook)
    (require 'todochiku)
    )
