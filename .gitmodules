@@ -1,0 +1,3 @@
+[submodule "jpenney/lib/auto-complete"]
+	path = jpenney/lib/auto-complete
+	url = http://github.com/m2ym/auto-complete
