@@ -133,8 +133,9 @@
 (add-to-list 'load-path (concat jcp-home "lib/auto-complete"))
 (add-to-list 'load-path (concat jcp-home "lib/cedet/semantic"))
 (add-to-list 'load-path (concat jcp-home "lib/cedet/semantic/bovine"))
-(load-library  (concat jcp-home "lib/auto-complete/init-auto-complete"))
-
+(require 'imenu)
+(require 'auto-complete-config)
+(ac-config-default)
 
 
 
