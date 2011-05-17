@@ -7,7 +7,7 @@
 ;; Copyright (C) 2007-2008 Anupam Sengupta, all rights reserved.
 ;; Created: Wed May 24 14:05:13 2007
 ;; Version: 1.0
-;; Last-Updated: Sat Aug 16 11:05:45 2008 (-0700)
+;; Last-Updated: Fri May 22 12:57:40 2009 (-0700)
 ;;           By: dradams
 ;; URL: http://www.emacswiki.org/cgi-bin/wiki/icicles-install.el
 ;; Keywords: package, download
@@ -15,10 +15,7 @@
 ;;
 ;; Features that might be required by this library:
 ;;
-;;   `ietf-drums', `mail-parse', `mail-prsvr', `mailcap', `mm-util',
-;;   `qp', `rfc2045', `rfc2047', `rfc2231', `time-date', `timezone',
-;;   `url', `url-cookie', `url-expand', `url-history', `url-methods',
-;;   `url-parse', `url-privacy', `url-proxy', `url-util', `url-vars'.
+;;   `url'.
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -60,6 +57,8 @@
 ;;
 ;;; Change log:
 ;;
+;; 2009/05/22 dadams
+;;     Split icicles-cmd.el into icicles-cmd1.el and icicles-cmd2.el.
 ;; 2008/08/16 dadams
 ;;     icicle-download-wizard: Bind load-path to include icicle-download-dir.
 ;;       Thx to Kevin Rodgers.
@@ -128,7 +127,8 @@ Default value is the Emacs Wiki site."
    "icicles-chg.el"             ; Change logs
    "icicles-doc1.el"            ; Doc, part 1
    "icicles-doc2.el"            ; Doc, part 2
-   "icicles-cmd.el"             ; Top-level Icicles commands
+   "icicles-cmd1.el"            ; Top-level Icicles commands, part 1
+   "icicles-cmd2.el"            ; Top-level Icicles commands, part 2
    "icicles-face.el"            ; Faces
    "icicles-fn.el"              ; Non-interactive functions
    "icicles-mac.el"             ; Macros

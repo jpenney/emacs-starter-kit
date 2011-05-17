@@ -1,0 +1,17 @@
+#!/usr/bin/env bash 
+PATH="${PATH}:$(dirname $0)"
+
+type have &>/dev/null || function have () 
+{ 
+    type "$1" &>/dev/null
+}
+
+have pep8 && \
+    pep8 --ignore=E221,E701,E202 --show-pep8  --repeat "$1" | \
+    sed -e 's/^\([^ ]*:\)[^:][^:]*: /\1 /'
+have epylint.py && \
+    epylint.py "$1" 2>/dev/null 
+have pyflakes && \
+    pyflakes "$1"
+true
+

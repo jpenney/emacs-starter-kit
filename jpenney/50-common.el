@@ -11,10 +11,40 @@
                                lisp-mode-hook emacs-lisp-mode-hook
                 ))
               (add-hook hook (lambda () (flyspell-mode 1))))
-;;(dolist (hook '(python-mode cc-mode))
- ;;     (add-hook hook (lambda () (flyspell-prog-mode 1))))
+(dolist (hook '(python-mode cc-mode))
+  (add-hook hook (lambda () (flyspell-prog-mode 1))))
 
 (load-library  (concat jcp-home "lib/org/lisp/org-install"))
+
+;; flymake
+(setq flymake-log-level 3)
+(setq flymake-extension-auto-show t)
+(require 'flymake)
+(require 'flymake-extension)
+
+
+(defun flymake-pylint-init (&optional trigger-type)
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-inplace))
+         (local-file (file-relative-name
+                      temp-file
+                      (file-name-directory buffer-file-name)))
+         (options (when trigger-type (list "--trigger-type" trigger-type))))
+    (list (concat jcp-home "bin/pyflymake.py")
+          (append options (list local-file)))))
+
+;    (list "~/.emacs.d/jpenney/bin/pyflymake.py" (append options (list local-file)))))
+(add-to-list 'flymake-allowed-file-name-masks
+             '("\\.py\\'" flymake-pylint-init))
+
+
+(defun jcp-flymake-show-help ()
+  (when (get-char-property (point) 'flymake-overlay)
+    (let ((help (get-char-property (point) 'help-echo)))
+      (if help (message "%s" help)))))
+
+(add-hook 'post-command-hook 'jcp-flymake-show-help)
+
 
 
 ;; yasnippet
@@ -35,6 +65,8 @@
 (pc-selection-mode 't)
 (setq ispell-program-name "aspell")
 (setq ispell-extra-args '("--sug-mode=ultra"))
+(setq ipython-completion-command-string "print(';'.join(__IP.Completer.all_completions('%s')))\n")
+
 
 ;; server mode
 ;(cond 
@@ -85,10 +117,13 @@
 (add-to-list 'load-path (concat jcp-home "lib/auto-complete"))
 (load-library  (concat jcp-home "lib/auto-complete/init-auto-complete"))
 
+
+
 ;;;;;;;;;;;;
 ;; Python
 ;;;;;;;;;;;;
 
+; set up paths (if needed)
 (let ((prefix  (shell-command-to-string "python-config --prefix"))
       (exec-prefix (shell-command-to-string "python-config --exec-prefix")))
   
@@ -98,28 +133,54 @@
                                             (- (length exec-prefix) 1))
                                  "/bin"))
 )
-  
-(setq py-python-command-args '( "-colors" "Linux"))
 
 (autoload 'python-mode "python-mode" "Python Mode." t)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
-(add-hook 'python-mode-hook
-          '(lambda () (progn
-                   (require 'ipython)
-                   (autoload 'pymacs-apply "pymacs")
-                   (autoload 'pymacs-call "pymacs")
-                   (autoload 'pymacs-eval "pymacs" nil t)
-                   (autoload 'pymacs-exec "pymacs" nil t)
-                   (autoload 'pymacs-load "pymacs" nil t)
-                   (pymacs-load "ropemacs" "rope-")
-                   (eldoc-mode 1)
-                   (set (make-variable-buffer-local
-                         'beginning-of-defun-function)
-                        'py-beginning-of-def-or-class)
-                   (setq outline-regexp "def\\|class ")
-                   )))
+(setq ropemacs-enable-shortcuts nil)
+(setq ropemacs-local-prefix "C-c C-p")
+(require 'pymacs)
+(pymacs-load "ropemacs" "rope-")
+
+
+(setq ropemacs-confirm-saving nil
+      ropemacs-guess-project t
+      ropemacs-enable-autoimport t
+      )
+
+(add-hook 'python-mode-hook 
+          (lambda ()
+            (require 'ipython)
+            (require 'pythontidy-mode)
+            (setq python-python-command "ipython")
+            (setq py-python-command-args '( "-colors" "Linux"))
+
+            ;dont invoke flymake on temporary buffers for the interpreter
+            (unless (eq buffer-file-name nil) (flymake-mode 1)) 
+            (local-set-key [f2] 'flymake-goto-prev-error)
+            (local-set-key [f3] 'flymake-goto-next-error)
+                                        ;(pythontidy-mode t)
+            (eldoc-mode 1)
+            ))
+
+
+;(add-hook 'python-mode-hook
+;          '(lambda () (progn
+;                   (require 'ipython)
+;                   (autoload 'pymacs-apply "pymacs")
+;                   (autoload 'pymacs-call "pymacs")
+;                   (autoload 'pymacs-eval "pymacs" nil t)
+;                   (autoload 'pymacs-exec "pymacs" nil t)
+;                   (autoload 'pymacs-load "pymacs" nil t)
+;                   (pymacs-load "ropemacs" "rope-")
+;                   (eldoc-mode 1)
+;                   (set (make-variable-buffer-local
+;                         'beginning-of-defun-function)
+;                        'py-beginning-of-def-or-class)
+;                   (setq outline-regexp "def\\|class ")
+;                   )))
+
 
 
 ;; pymacs
@@ -194,7 +255,7 @@
    (tool-bar-mode 1)
    (tooltip-mode 1)   
    (menu-bar-mode 1)
-   (icy-mode 1)
+   ;(icy-mode 1)
    (run-hooks 'my-window-setup-hook)
    (require 'todochiku)
    )
@@ -229,4 +290,5 @@
 ;      )
 ;    nil)
 ;    (setq confirm-kill-emacs 'jcp-confirm-kill-emacs)
+
 
