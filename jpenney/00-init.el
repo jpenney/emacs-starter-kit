@@ -4,7 +4,7 @@
 ;    (message "starting server")
 ;    (server-start)
 ;))
-
+(require 'idle-highlight)
 ;; set up path
 (defvar jcp-home (file-name-directory
                   (or (buffer-file-name) load-file-name)))

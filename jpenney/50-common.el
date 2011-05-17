@@ -1,3 +1,4 @@
+
 (message "50-common")
 
 (add-to-list 'bcc-blacklist (concat jcp-home "lib/org/.*"))
@@ -9,6 +10,7 @@
 
 (dolist (hook '(text-mode-hook org-mode-hook cc-mode-hook python-mode-hook
                                lisp-mode-hook emacs-lisp-mode-hook
+                               cperl-mode-hook
                 ))
               (add-hook hook (lambda () (flyspell-mode 1))))
 ;;(dolist (hook '(python-mode cc-mode))
@@ -16,6 +18,16 @@
 
 (load-library  (concat jcp-home "lib/org/lisp/org-install"))
 
+
+(setq flymake-extension-auto-show t)
+(require 'flymake-extension)
+
+(defun jcp-flymake-show-help ()
+  (when (get-char-property (point) 'flymake-overlay)
+    (let ((help (get-char-property (point) 'help-echo)))
+      (if help (message "%s" help)))))
+
+(add-hook 'post-command-hook 'jcp-flymake-show-help)
 
 ;; yasnippet
 (jcp-elpa-install-package 'yasnippet-bundle)
@@ -35,6 +47,8 @@
 (pc-selection-mode 't)
 (setq ispell-program-name "aspell")
 (setq ispell-extra-args '("--sug-mode=ultra"))
+(setq ipython-completion-command-string "print(';'.join(__IP.Completer.all_completions('%s')))\n")
+
 
 ;; server mode
 ;(cond 
@@ -60,35 +74,45 @@
 
 (autoload 'moz-minor-mode "moz" "Mozilla Minor and Inferior Mozilla Modes" t)
 
+
 ;;
 ;; Load CEDET
 (add-to-list 'bcc-blacklist (concat jcp-home "lib/cedet/.*"))
+(add-to-list 'bcc-blacklist (concat jcp-home "lib/ecb/.*"))
+(add-to-list 'load-path (concat jcp-home "lib/cedet"))
+(add-to-list 'load-path (concat jcp-home "lib/ecb"))
 (let ((bcc-enabled 'nil)
       (byte-compile-verbose 'nil)
       (byte-compile-warnings ()))
   (setq semantic-load-turn-useful-things-on t)
   (load-file (concat jcp-home "lib/cedet/common/cedet.el"))
   (load-save-place-alist-from-file)
-  (add-to-list 'load-path (concat jcp-home "lib/ecb"))
+
   (unless (require 'ecb-autoloads nil t)
     (progn
       (require 'ecb-autogen)
       (ecb-update-autoloads)
       (require 'ecb-autoloads)
       (ecb-byte-compile)))
-;;  (ecb-byte-compile)
+  ;;  (ecb-byte-compile)  
   )
 
 ;;;;;;;;;;;
 ;; auto-complete
 ;;;;;;;;;;;
 (add-to-list 'load-path (concat jcp-home "lib/auto-complete"))
+(add-to-list 'load-path (concat jcp-home "lib/cedet/semantic"))
+(add-to-list 'load-path (concat jcp-home "lib/cedet/semantic/bovine"))
 (load-library  (concat jcp-home "lib/auto-complete/init-auto-complete"))
+
+
+
 
 ;;;;;;;;;;;;
 ;; Python
 ;;;;;;;;;;;;
 
+; set up paths (if needed)
 (let ((prefix  (shell-command-to-string "python-config --prefix"))
       (exec-prefix (shell-command-to-string "python-config --exec-prefix")))
   
@@ -98,28 +122,62 @@
                                             (- (length exec-prefix) 1))
                                  "/bin"))
 )
-  
-(setq py-python-command-args '( "-colors" "Linux"))
 
 (autoload 'python-mode "python-mode" "Python Mode." t)
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
-(add-hook 'python-mode-hook
-          '(lambda () (progn
-                   (require 'ipython)
-                   (autoload 'pymacs-apply "pymacs")
-                   (autoload 'pymacs-call "pymacs")
-                   (autoload 'pymacs-eval "pymacs" nil t)
-                   (autoload 'pymacs-exec "pymacs" nil t)
-                   (autoload 'pymacs-load "pymacs" nil t)
-                   (pymacs-load "ropemacs" "rope-")
-                   (eldoc-mode 1)
-                   (set (make-variable-buffer-local
-                         'beginning-of-defun-function)
-                        'py-beginning-of-def-or-class)
-                   (setq outline-regexp "def\\|class ")
-                   )))
+(require 'pymacs)
+
+(when (load "flymake" t)
+  (defun flymake-pycheckers-init ()
+    (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                       'flymake-create-temp-inplace))
+           (local-file (file-relative-name
+                        temp-file
+                        (file-name-directory buffer-file-name))))
+      (list "/Users/jpenney/.emacs.d/jpenney/bin/pycheckers"  (list local-file)))))
+
+
+(add-to-list 'flymake-allowed-file-name-masks
+               '("\\.py\\'" flymake-pycheckers-init))
+
+
+
+(setq ropemacs-confirm-saving nil
+      ropemacs-guess-project t
+      ropemacs-enable-autoimport t
+      )
+
+(add-hook 'python-mode-hook 
+          (lambda ()
+            (require 'ipython)
+            (setq python-python-command "ipython")
+            (setq py-python-command-args '( "-colors" "Linux"))
+
+            ;dont invoke flymake on temporary buffers for the interpreter
+            (unless (eq buffer-file-name nil) (flymake-mode 1)) 
+            (local-set-key [f2] 'flymake-goto-prev-error)
+            (local-set-key [f3] 'flymake-goto-next-error)
+            ))
+
+
+;(add-hook 'python-mode-hook
+;          '(lambda () (progn
+;                   (require 'ipython)
+;                   (autoload 'pymacs-apply "pymacs")
+;                   (autoload 'pymacs-call "pymacs")
+;                   (autoload 'pymacs-eval "pymacs" nil t)
+;                   (autoload 'pymacs-exec "pymacs" nil t)
+;                   (autoload 'pymacs-load "pymacs" nil t)
+;                   (pymacs-load "ropemacs" "rope-")
+;                   (eldoc-mode 1)
+;                   (set (make-variable-buffer-local
+;                         'beginning-of-defun-function)
+;                        'py-beginning-of-def-or-class)
+;                   (setq outline-regexp "def\\|class ")
+;                   )))
+
 
 
 ;; pymacs
@@ -127,6 +185,72 @@
 
 ;;(eval-after-load "pymacs"
 ;;  '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
+
+
+;;;;;;;;;;
+;; perl
+;;;;;;;;;;
+
+;; Use cperl-mode instead of the default perl-mode
+(defalias 'perl-mode 'cperl-mode)
+
+
+
+(defun jcp-cperl-eldoc-documentation-function ()
+  "Return meaningful doc string for `eldoc-mode'."
+  (car
+   (let ((cperl-message-on-help-error nil))
+     (cperl-get-help))))
+
+(defun jcp-cperl-mode-hook ()
+  (message "starting jcp-cperl-mode-hook")
+  ;; just spaces
+  (setq-default indent-tabs-mode nil)
+
+  (global-set-key "\r" 'newline-and-indent)
+
+  (cperl-set-style "BSD")
+  ;; Use 4 space indents via cperl mode
+  (setq 
+    cperl-close-paren-offset -4
+    cperl-continued-statement-offset 4
+    cperl-indent-level 4
+    cperl-indent-parens-as-block t
+    cperl-tab-always-indent t
+    cperl-highlight-variables-indiscriminately t
+    )
+
+
+  (set (make-local-variable 'eldoc-documentation-function)
+       'jcp-cperl-eldoc-documentation-function)
+
+  (unless (eq buffer-file-name nil) (flymake-mode 1))
+
+  (setq plcmp-use-keymap nil)
+  (require 'perl-completion)
+  (perl-completion-mode t)
+  (when (require 'auto-complete nil t) 
+    (auto-complete-mode t)
+    (make-variable-buffer-local 'ac-sources)
+    (setq ac-sources
+          '(ac-source-perl-completion)))
+  (autoload 'perltidy "perltidy-mode" nil t)
+  (autoload 'perltidy-mode "perltidy-mode" nil t)
+  (perltidy-mode t)
+  (message "finished jcp-cperl-mode-hook")
+  )
+
+(add-hook 'cperl-mode-hook 'jcp-cperl-mode-hook)
+(require 'xs-mode)          
+(require 'pod-mode)
+
+(setq auto-mode-alist
+      (append auto-mode-alist
+              '(("\\.xs$" . xs-mode))
+              '(("\\.pod$" . pod-mode))))
+          
+
+
 
 ;;;;;;;;;;
 ;; php
@@ -229,4 +353,5 @@
 ;      )
 ;    nil)
 ;    (setq confirm-kill-emacs 'jcp-confirm-kill-emacs)
+
 
