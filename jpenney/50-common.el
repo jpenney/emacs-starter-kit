@@ -19,7 +19,7 @@
 (load-library  (concat jcp-home "lib/org/lisp/org-install"))
 
 ;; flymake
-(setq flymake-log-level 3)
+;(setq flymake-log-level 3)
 (setq flymake-extension-auto-show t)
 (require 'flymake)
 (require 'flymake-extension)
@@ -32,9 +32,9 @@
                       temp-file
                       (file-name-directory buffer-file-name)))
          (options (when trigger-type (list "--trigger-type" trigger-type))))
-    (list (concat jcp-home "bin/pyflymake.py")
-          (append options (list local-file)))))
-
+    (list "python" 
+          (append (list (concat jcp-home "bin/pyflymake.py")) 
+                  (append options (list local-file))))))
 ;    (list "~/.emacs.d/jpenney/bin/pyflymake.py" (append options (list local-file)))))
 (add-to-list 'flymake-allowed-file-name-masks
              '("\\.py\\'" flymake-pylint-init))
@@ -169,12 +169,6 @@
       ropemacs-guess-project t
       ropemacs-enable-autoimport t
       )
-
-
-(add-to-list 'flymake-allowed-file-name-masks
-               '("\\.py\\'" flymake-pycheckers-init))
-
-
 
 (setq ropemacs-confirm-saving nil
       ropemacs-guess-project t
