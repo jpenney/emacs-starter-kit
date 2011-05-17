@@ -1,3 +1,9 @@
 [submodule "jpenney/lib/auto-complete"]
 	path = jpenney/lib/auto-complete
 	url = http://github.com/m2ym/auto-complete
+[submodule "jpenney/lib/cedet"]
+	path = jpenney/lib/cedet
+	url = http://github.com/emacsmirror/cedet.git
+[submodule "jpenney/lib/ecb"]
+	path = jpenney/lib/ecb
+	url = http://github.com/emacsmirror/ecb.git
