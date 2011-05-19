@@ -1,63 +1,46 @@
-
 (message "50-common")
 
-(add-to-list 'bcc-blacklist (concat jcp-home "lib/org/.*"))
-
 ;; flyspell setup
-(autoload 'flyspell-mode-on "flyspell" "On-the-fly ispell." t)
-(autoload 'flyspell-mode "flyspell" "On-the-fly ispell." t)
-(autoload 'flyspell-prog-mode "flyspell" "On-the-fly ispell." t)
 
-(dolist (hook '(text-mode-hook org-mode-hook cc-mode-hook python-mode-hook
-                               lisp-mode-hook emacs-lisp-mode-hook
-                               cperl-mode-hook
-                ))
-              (add-hook hook (lambda () (flyspell-mode 1))))
-(dolist (hook '(python-mode cc-mode))
-  (add-hook hook (lambda () (flyspell-prog-mode 1))))
-
-(load-library  (concat jcp-home "lib/org/lisp/org-install"))
+(eval-after-load "flyspell"
+  '(progn
+     (dolist (hook '(text-mode-hook org-mode-hook cc-mode-hook python-mode-hook
+                                    lisp-mode-hook emacs-lisp-mode-hook
+                                    cperl-mode-hook
+                                    ))
+       (add-hook hook (lambda () (flyspell-mode 1))))
+     (dolist (hook '(python-mode cc-mode))
+       (add-hook hook (lambda () (flyspell-prog-mode 1))))
+     ))
 
 ;; flymake
-;(setq flymake-log-level 3)
-(setq flymake-extension-auto-show t)
-(require 'flymake)
-(require 'flymake-extension)
+(eval-after-load "flymake"
+  '(progn
+     ;; (setq flymake-log-level 3)
+    
 
-
-(defun flymake-pylint-init (&optional trigger-type)
-  (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                     'flymake-create-temp-inplace))
+     (defun flymake-pylint-init (&optional trigger-type)
+       (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                          'flymake-create-temp-inplace))
          (local-file (file-relative-name
                       temp-file
                       (file-name-directory buffer-file-name)))
          (options (when trigger-type (list "--trigger-type" trigger-type))))
-    (list "python" 
-          (append (list (concat jcp-home "bin/pyflymake.py")) 
-                  (append options (list local-file))))))
-;    (list "~/.emacs.d/jpenney/bin/pyflymake.py" (append options (list local-file)))))
-(add-to-list 'flymake-allowed-file-name-masks
-             '("\\.py\\'" flymake-pylint-init))
+         (list "python" 
+               (append (list (concat jcp-home "bin/pyflymake.py")) 
+                       (append options (list local-file))))))
+     (add-to-list 'flymake-allowed-file-name-masks
+                  '("\\.py\\'" flymake-pylint-init))
+     (defun jcp-flymake-show-help ()
+       (when (get-char-property (point) 'flymake-overlay)
+         (let ((help (get-char-property (point) 'help-echo)))
+           (if help (message "%s" help)))))
 
-
-(defun jcp-flymake-show-help ()
-  (when (get-char-property (point) 'flymake-overlay)
-    (let ((help (get-char-property (point) 'help-echo)))
-      (if help (message "%s" help)))))
-
-(add-hook 'post-command-hook 'jcp-flymake-show-help)
-
-
-
+     (add-hook 'post-command-hook 'jcp-flymake-show-help)
+     ))
 (setq flymake-extension-auto-show t)
 (require 'flymake-extension)
 
-(defun jcp-flymake-show-help ()
-  (when (get-char-property (point) 'flymake-overlay)
-    (let ((help (get-char-property (point) 'help-echo)))
-      (if help (message "%s" help)))))
-
-(add-hook 'post-command-hook 'jcp-flymake-show-help)
 
 ;; yasnippet
 (jcp-elpa-install-package 'yasnippet-bundle)
@@ -70,11 +53,15 @@
 
 
 ;; color-theme
-(require 'color-theme)
+;;(require 'color-theme)
 (color-theme-initialize)
 
 (setq inhibit-startup-message 't)
-(pc-selection-mode 't)
+(unless (fboundp 'pc-selection-mode)
+  (require 'pc-select))
+(if (fboundp 'pc-selection-mode)
+    (pc-selection-mode 't))
+
 (setq ispell-program-name "aspell")
 (setq ispell-extra-args '("--sug-mode=ultra"))
 (setq ipython-completion-command-string "print(';'.join(__IP.Completer.all_completions('%s')))\n")
@@ -108,33 +95,42 @@
 ;;
 ;; Load CEDET
 (add-to-list 'bcc-blacklist (concat jcp-home "lib/cedet/.*"))
-(add-to-list 'bcc-blacklist (concat jcp-home "lib/ecb/.*"))
+;(add-to-list 'bcc-blacklist (concat jcp-home "lib/ecb/.*"))
 (add-to-list 'load-path (concat jcp-home "lib/cedet"))
+
 (add-to-list 'load-path (concat jcp-home "lib/ecb"))
 (let ((bcc-enabled 'nil)
       (byte-compile-verbose 'nil)
       (byte-compile-warnings ()))
-  (setq semantic-load-turn-useful-things-on t)
-  (load-file (concat jcp-home "lib/cedet/common/cedet.el"))
-  (load-save-place-alist-from-file)
+  (unless (fboundp 'cedet)
+    (progn
+      (setq semantic-load-turn-useful-things-on t)
+      (load-file (concat jcp-home "lib/cedet/common/cedet.el"))
+      (load-save-place-alist-from-file)))
+      
 
   (unless (require 'ecb-autoloads nil t)
     (progn
       (require 'ecb-autogen)
       (ecb-update-autoloads)
-      (require 'ecb-autoloads)
-      (ecb-byte-compile)))
-  ;;  (ecb-byte-compile)  
-  )
+      (require 'ecb-autoloads))))
+
 
 ;;;;;;;;;;;
 ;; auto-complete
 ;;;;;;;;;;;
+;(add-to-list 'bcc-blacklist 
+;	     (concat jcp-home
+                                        ;"lib/auto-complete/auto-complete-config*"))
+(message "configure auto-complete")
 (add-to-list 'load-path (concat jcp-home "lib/auto-complete"))
 (add-to-list 'load-path (concat jcp-home "lib/cedet/semantic"))
 (add-to-list 'load-path (concat jcp-home "lib/cedet/semantic/bovine"))
-(require 'imenu)
-(require 'auto-complete-config)
+
+;; I don't understand WHY this works, but it does
+(unless (require 'auto-complete-config nil t)
+  (progn
+    (require 'auto-complete-config)))
 (ac-config-default)
 
 
@@ -159,10 +155,11 @@
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
+
 (setq ropemacs-enable-shortcuts nil)
 (setq ropemacs-local-prefix "C-c C-p")
-(require 'pymacs)
-(pymacs-load "ropemacs" "rope-")
+;(require 'pymacs)
+;(pymacs-load "ropemacs" "rope-")
 
 
 (setq ropemacs-confirm-saving nil
@@ -270,8 +267,8 @@
   )
 
 (add-hook 'cperl-mode-hook 'jcp-cperl-mode-hook)
-(require 'xs-mode)          
-(require 'pod-mode)
+;;(require 'xs-mode)          
+;;(require 'pod-mode)
 
 (setq auto-mode-alist
       (append auto-mode-alist
@@ -297,46 +294,59 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; org
 
-(defun jcp-org-load ()
-  (progn   
-    (message "Configuring Org")
-    ;;    (org-enforce-todo-checkbox-dependencies)
 
-    (imenu-add-to-menubar "Imenu")
-    (setq org-hide-leading-stars 't)
-    (setq org-log-done '(note))
-    (setq org-log-note-clock-out 't)
-    (setq org-export-with-archived-trees nil)
-    (setq org-enforce-todo-checkbox-dependencies 't)
-    (setq org-special-ctrl-k 't)
-    (setq org-agenda-dim-blocked-tasks 't)
-    ))
+(eval-after-load "org"
+  '(progn
+     (defun jcp-org-load ()
+       (progn   
+         (message "Configuring Org")
+         ;;    (org-enforce-todo-checkbox-dependencies)
 
-(add-hook 'org-mode-hook 'jcp-org-load) 
+         (imenu-add-to-menubar "Imenu")
+         (setq org-hide-leading-stars 't)
+         (setq org-log-done '(note))
+         (setq org-log-note-clock-out 't)
+         (setq org-export-with-archived-trees nil)
+         (setq org-enforce-todo-checkbox-dependencies 't)
+         (setq org-special-ctrl-k 't)
+         (setq org-agenda-dim-blocked-tasks 't)
+         ))
+
+     (add-hook 'org-mode-hook 'jcp-org-load)))
+
+(eval-after-load "byte-code-cache"
+  '(add-to-list 'bcc-blacklist (concat jcp-home "lib/org/.*")))
+
+(unless (fboundp 'org-mode)
+  (load-library  (concat jcp-home "lib/org/lisp/org-install")))
 
 
 ;; icicles
-
-
-(defun jcp-icicle-mode-hook()
-  (dolist (map (append (list minibuffer-local-completion-map
-                             minibuffer-local-must-match-map)
-                       (and (fboundp 'minibuffer-local-filename-completion-map)
-                            (list minibuffer-local-filename-completion-map))))
-    (when icicle-mode
-      (define-key map [s-up] 'previous-history-element)
-      (define-key map [s-up] 'next-history-element)))
-  )
-
-(require 'icicles-install)
+(message (concat "icicles download dir: " icicle-download-dir))
 (unless (file-exists-p icicle-download-dir)
   (progn
     (make-directory icicle-download-dir)
-    (icicle-download-all-files)))
-(require 'icicles)
+    (icicle-download-all-files)
+    (jcp-update-autoloads)))
 
-(add-hook 'icicle-mode-hook 'jcp-icicle-mode-hook)
+(eval-after-load "icicles"
+  '(progn
+     (defun jcp-icicle-mode-hook()
+       (dolist (map (append (list minibuffer-local-completion-map
+                                  minibuffer-local-must-match-map)
+                            (and (fboundp
+                                  'minibuffer-local-filename-completion-map)
+                                 (list minibuffer-local-filename-completion-map))))
+         (when icicle-mode
+           (define-key map [s-up] 'previous-history-element)
+           (define-key map [s-up] 'next-history-element)))
+       )
+     (add-hook 'icicle-mode-hook 'jcp-icicle-mode-hook)
+     ))
+
+(require 'icicles)
 
 (defcustom my-window-setup-hook nil
   "Hook for window-setup"

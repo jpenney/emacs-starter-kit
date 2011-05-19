@@ -18,7 +18,6 @@
 (add-to-list 'load-path dotfiles-dir)
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit"))
 (add-to-list 'load-path (concat dotfiles-dir "/elpa-to-submit/jabber"))
-
 (setq autoload-file (concat dotfiles-dir "loaddefs.el"))
 (setq package-user-dir (concat dotfiles-dir "elpa"))
 (setq custom-file (concat dotfiles-dir "custom.el"))
@@ -39,6 +38,13 @@
 
 ;; Load up ELPA, the package manager
 
+(eval-after-load "package"
+  '(progn
+     (add-to-list 'package-archives
+             '("marmalade" . 
+               "http://marmalade-repo.org/packages/") t)
+     (add-to-list 'package-archives
+                  '("ELPA" . "http://tromey.com/elpa/") t)))
 (require 'package)
 (package-initialize)
 (require 'starter-kit-elpa)

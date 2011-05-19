@@ -12,11 +12,15 @@
        (defvar jcp-systype "unknown")))
 
 
-(defvar jcp-yasnippets (concat jcp-home "snippets"))
+(setq jcp-yasnippets (concat jcp-home "snippets"))
 
-(defvar icicle-download-dir (concat jcp-home "icicles"))
+(setq icicle-download-dir (concat jcp-home "icicles"))
 (add-to-ordered-list 'load-path icicle-download-dir 1)
 
+;; initialize elpa
+(package-initialize)
+
+;;;###autoload
 (defun jcp-elpa-install-package (package)
   "Install package from elpa if not already installed"
   (progn
@@ -25,6 +29,7 @@
       (message "Installing %s" (symbol-name package))
       (package-install package))))
 
+;;;###autoload
 (defun jcp-exec-path-prepend (newpath)
   "Prepend new path into 'PATH' environment and exec-path"
   (progn
@@ -32,6 +37,7 @@
     (add-to-ordered-list 'exec-path newpath 1)
     ))
 
+;;;###autoload
 (defun jcp-exec-path-append (newpath)
    "Prepend new path into 'PATH' environment and exec-path"
   (progn
@@ -46,6 +52,7 @@
 (setq todochiku-icons-directory (concat jcp-home "todochiku-icons"))
 
 
+;;;###autoload
 (defun client-save-kill-emacs()
   " This is a function that can bu used to shutdown save buffers and 
 shutdown the emacs daemon. It should be called using 
@@ -109,6 +116,7 @@ be prompted."
   )
 
 
+;;;###autoload
 (defun modified-buffers-exist() 
   "This function will check to see if there are any buffers
 that have been modified.  It will return true if there are
@@ -131,3 +139,6 @@ nil are ignored."
     modified-found
     )
   )
+
+
+                                   
