@@ -6,12 +6,18 @@
 
 (setq user-emacs-directory (expand-file-name user-emacs-directory))
 
+;; probably already there, but it's not always
+(add-to-list 'load-path user-emacs-directory)
+
+
+;; prevent package from enabling before I'm ready
+(setq package-enable-at-startup 'nil)
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (setq autoload-file (concat user-emacs-directory "loaddefs.el"))
 (defvar user-init-directory (concat user-emacs-directory "init.d/"))
 
-;;(load 'custom-file 'noerror)
-;;(load 'autoload-file)
+(load custom-file 'noerror)
+(load autoload-file)
 
 (if (file-exists-p user-init-directory)
     (mapc #'load (directory-files user-init-directory t ".*el$")))

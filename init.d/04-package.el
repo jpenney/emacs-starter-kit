@@ -9,7 +9,12 @@
                   '("marmalade" .
                     "http://marmalade-repo.org/packages/") t)
 
+     (unless (boundp 'package-user-dir)
+       (defcustom package-user-dir (locate-user-emacs-file "elpa")))
+     (setq package-user-dir (expand-file-name package-user-dir))
+     
      ;; don't run elpa packages throuh byte-code-cache
+     (message (concat "don't cache elpa: " package-user-dir))
      (if (boundp 'bcc-blacklist)
          (add-to-list 'bcc-blacklist (concat package-user-dir "/.*")))))
 
@@ -37,6 +42,7 @@
                            'flymake-cursor
                            'auto-complete
                            'php-mode
+			   'diff-git
                            ;;'color-theme ;; not really working
                            )
   "Libraries that should be installed by default.")

@@ -99,6 +99,19 @@
 (add-to-list 'bcc-blacklist (concat jcp-ecb-dir ".*"))
 (add-to-list 'load-path jcp-ecb-dir)
 
+(eval-after-load "ecb"
+  '(progn
+     (unless (fboundp 'real-ecb-activate)
+       (progn
+	 (message "patching ECB activation")
+	 (defalias 'real-ecb-activate (symbol-function 'ecb-activate))
+	 (defun jcp-ecb-activate ()
+	   (interactive)
+	   ;; allow to load with 'too new' versions of cedet
+	   (let ((ecb-cedet-required-version-max '(1 2 0 0)))
+	     (real-ecb-activate)))
+	 (defalias 'ecb-activate (symbol-function 'jcp-ecb-activate))))))
+
 (let ((bcc-enabled 'nil)
       (byte-compile-verbose 'nil)
       (byte-compile-warnings ()))
@@ -123,10 +136,8 @@
 ;	     (concat jcp-home
                                         ;"lib/auto-complete/auto-complete-config*"))
 (message "configure auto-complete")
-;(add-to-list 'load-path (concat jcp-home "lib/auto-complete"))
-;(add-to-list 'load-path (concat jcp-home "lib/cedet/semantic"))
-;(add-to-list 'load-path (concat jcp-home "lib/cedet/semantic/bovine"))
-
+(add-to-list 'load-path (concat  jcp-cedet-dir "/semantic/"))
+(add-to-list 'load-path (concat  jcp-cedet-dir "/semantic/bovine/"))
 ;; I don't understand WHY this works, but it does
 (unless (require 'auto-complete-config nil t)
   (progn

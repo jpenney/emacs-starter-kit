@@ -3,32 +3,35 @@
       ;; rinari can NOT handle "//" paths
       (setq rinari-major-modes (list ))
 
-      (let (
-            (starter-nxhtml-nxhtml  (concat  dotfiles-dir "nxhtml/nxhtml"))
-            (starter-nxhtml-related (concat  dotfiles-dir "nxhtml/nxhtml"))
-            (starter-nxhtml-util (concat  dotfiles-dir "nxhtml/nxhtml"))
-            (site-start (file-name-directory (locate-library "site-start")))
-            )
-        (setq load-path (remq starter-nxhtml-nxhtml load-path))
-        (setq load-path (remq starter-nxhtml-related load-path))
-        (setq load-path (remq starter-nxhtml-util load-path))
-        (load (concat site-start "../EmacsW32/nxhtml/autostart.el"))
+      ;; (let (
+      ;;       (starter-nxhtml-nxhtml  (concat user-emacs-directory 
+      ;; 					    "nxhtml/nxhtml/"))
+      ;;       (starter-nxhtml-related (concat user-emacs-directory 
+      ;; 					    "nxhtml/nxhtml/"))
+      ;;       (starter-nxhtml-util (concat user-emacs-directory  
+      ;; 					 "nxhtml/nxhtml/"))
+      ;;       (site-start (file-name-directory (locate-library "site-start")))
+      ;;       )
+      ;;   (setq load-path (remq starter-nxhtml-nxhtml load-path))
+      ;;   (setq load-path (remq starter-nxhtml-related load-path))
+      ;;   (setq load-path (remq starter-nxhtml-util load-path))
+      ;;   (load (concat site-start "../EmacsW32/nxhtml/autostart.el"))
         
-        )
+      ;;   )
      
        
-      (setq todochiku-command
-            "C:/Program Files/Growl for Windows/growlnotify.exe")
+      ;; (setq todochiku-command
+      ;;       "C:/Program Files/Growl for Windows/growlnotify.exe")
 
-       (setq todochiku-command
-             "C:/Program Files/Growl for Windows/growlnotify.exe")
+      ;;  (setq todochiku-command
+      ;;        "C:/Program Files/Growl for Windows/growlnotify.exe")
 
-       (defun jcp-win32-todochiku-get-arguments (title message icon)
-         "Gets todochiku arguments."
-         (list (format "/t:\"%s\"" title)
-               (format "/i:\"%s\"" (todochiku-icon icon)) message))
+      ;;  (defun jcp-win32-todochiku-get-arguments (title message icon)
+      ;;    "Gets todochiku arguments."
+      ;;    (list (format "/t:\"%s\"" title)
+      ;;          (format "/i:\"%s\"" (todochiku-icon icon)) message))
 
-       (defalias 'todochiku-get-arguments 'jcp-win32-todochiku-get-arguments)
+      ;;  (defalias 'todochiku-get-arguments 'jcp-win32-todochiku-get-arguments)
        
        (setq browse-url-browser-function
             'browse-url-default-windows-browser)
