@@ -41,11 +41,7 @@
 (setq flymake-extension-auto-show t)
 (require 'flymake-extension)
 
-
-;; yasnippet
-(jcp-elpa-install-package 'yasnippet-bundle)
-
-
+;; configure yasnippets
 (unless (file-exists-p jcp-yasnippets)
     (make-directory jcp-yasnippets))
 (yas/initialize)
@@ -94,18 +90,22 @@
 
 ;;
 ;; Load CEDET
-(add-to-list 'bcc-blacklist (concat jcp-home "lib/cedet/.*"))
-;(add-to-list 'bcc-blacklist (concat jcp-home "lib/ecb/.*"))
-(add-to-list 'load-path (concat jcp-home "lib/cedet"))
+(setq jcp-cedet-dir (concat user-emacs-directory "lib/cedet/"))
+(add-to-list 'bcc-blacklist (concat jcp-cedet-dir ".*"))
+(add-to-list 'load-path jcp-cedet-dir)
 
-(add-to-list 'load-path (concat jcp-home "lib/ecb"))
+;; ECB
+(setq jcp-ecb-dir (concat user-emacs-directory "lib/ecb/"))
+(add-to-list 'bcc-blacklist (concat jcp-ecb-dir ".*"))
+(add-to-list 'load-path jcp-ecb-dir)
+
 (let ((bcc-enabled 'nil)
       (byte-compile-verbose 'nil)
       (byte-compile-warnings ()))
   (unless (fboundp 'cedet)
     (progn
       (setq semantic-load-turn-useful-things-on t)
-      (load-file (concat jcp-home "lib/cedet/common/cedet.el"))
+      (load-file (concat jcp-cedet-dir "/common/cedet.el"))
       (load-save-place-alist-from-file)))
       
 
@@ -123,9 +123,9 @@
 ;	     (concat jcp-home
                                         ;"lib/auto-complete/auto-complete-config*"))
 (message "configure auto-complete")
-(add-to-list 'load-path (concat jcp-home "lib/auto-complete"))
-(add-to-list 'load-path (concat jcp-home "lib/cedet/semantic"))
-(add-to-list 'load-path (concat jcp-home "lib/cedet/semantic/bovine"))
+;(add-to-list 'load-path (concat jcp-home "lib/auto-complete"))
+;(add-to-list 'load-path (concat jcp-home "lib/cedet/semantic"))
+;(add-to-list 'load-path (concat jcp-home "lib/cedet/semantic/bovine"))
 
 ;; I don't understand WHY this works, but it does
 (unless (require 'auto-complete-config nil t)
@@ -316,20 +316,9 @@
 
      (add-hook 'org-mode-hook 'jcp-org-load)))
 
-(eval-after-load "byte-code-cache"
-  '(add-to-list 'bcc-blacklist (concat jcp-home "lib/org/.*")))
-
 (unless (fboundp 'org-mode)
   (load-library  (concat jcp-home "lib/org/lisp/org-install")))
 
-
-;; icicles
-(message (concat "icicles download dir: " icicle-download-dir))
-(unless (file-exists-p icicle-download-dir)
-  (progn
-    (make-directory icicle-download-dir)
-    (icicle-download-all-files)
-    (jcp-update-autoloads)))
 
 (eval-after-load "icicles"
   '(progn
@@ -346,7 +335,6 @@
      (add-hook 'icicle-mode-hook 'jcp-icicle-mode-hook)
      ))
 
-(require 'icicles)
 
 (defcustom my-window-setup-hook nil
   "Hook for window-setup"

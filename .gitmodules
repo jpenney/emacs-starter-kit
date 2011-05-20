@@ -7,3 +7,12 @@
 [submodule "jpenney/lib/ecb"]
 	path = jpenney/lib/ecb
 	url = http://github.com/emacsmirror/ecb.git
+[submodule "lib/cedet"]
+	path = lib/cedet
+	url = http://github.com/emacsmirror/cedet.git
+[submodule "lib/ecb"]
+	path = lib/ecb
+	url = http://github.com/emacsmirror/ecb.git
+[submodule "lib/nxhtml"]
+	path = lib/nxhtml
+	url = http://github.com/emacsmirror/nxhtml.git
