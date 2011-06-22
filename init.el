@@ -1,4 +1,9 @@
 ;;; init.el
+(require 'cl) ;; needed to time startup
+(defvar *emacs-load-start* (current-time))
+
+(setq debug-on-error t)
+(setq byte-compile-verbose t)
 
 (unless (boundp 'user-emacs-directory)
   (defvar user-emacs-directory "~/.emacs.d/"
@@ -85,4 +90,24 @@
 ;; (if (file-exists-p user-specific-dir)
 ;;   (mapc #'load (directory-files user-specific-dir nil ".*el$")))
 
+(message (concat (buffer-file-name) "loaded in %ds")
+	 (destructuring-bind (hi lo ms) (current-time)
+			     (- (+ hi lo) 
+				(+ (first *emacs-load-start*) 
+				   (second *emacs-load-start*)))))
 ;; ;;; init.el ends here
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
