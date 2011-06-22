@@ -1,5 +1,6 @@
 (if (string-match jcp-systype "windows")
     (progn
+
       ;; rinari can NOT handle "//" paths
       (setq rinari-major-modes (list ))
 
@@ -19,20 +20,18 @@
         
       ;;   )
      
-       
-      ;; (setq todochiku-command
-      ;;       "C:/Program Files/Growl for Windows/growlnotify.exe")
-
-      ;;  (setq todochiku-command
-      ;;        "C:/Program Files/Growl for Windows/growlnotify.exe")
-
-      ;;  (defun jcp-win32-todochiku-get-arguments (title message icon)
-      ;;    "Gets todochiku arguments."
-      ;;    (list (format "/t:\"%s\"" title)
-      ;;          (format "/i:\"%s\"" (todochiku-icon icon)) message))
-
-      ;;  (defalias 'todochiku-get-arguments 'jcp-win32-todochiku-get-arguments)
-       
+      
+      (unless (fboundp 'jcp-win32-todochiku-get-arguments)
+        (progn
+          (setq todochiku-use-growl-win t)
+          (setq todochiku-command
+                "C:/Program Files/Growl for Windows/growlnotify.exe")
+          (defun jcp-win32-todochiku-get-arguments (title message icon)
+            "Gets todochiku arguments."
+            (list (format "/t:\"%s\"" title)
+                  (format "/i:\"%s\"" (todochiku-icon icon)) message))
+          (defalias 'todochiku-get-arguments 'jcp-win32-todochiku-get-arguments)
+       ))
        (setq browse-url-browser-function
             'browse-url-default-windows-browser)
 
@@ -74,24 +73,22 @@
       (setq w32shell-cygwin-bin jcp-cygwin-bin)
       (setq w32shell-shell "cygwin")
 
-      (eval-after-load "w32shell"
-        '(progn
-           (unless (fboundp 'real-w32shell-remove-exec-path)
-             (defalias 'real-w32shell-remove-exec-path
-               (symbol-function 'w32shell-remove-exec-path)))
-           (defalias 'w32shell-remove-exec-path
-             'jcp-wrap-w32shell-remove-exec-path)
-           (unless (fboundp 'real-executable-find)
-             (defalias 'real-executable-find
-               (symbol-function 'executable-find)))
-           (defalias 'executable-find
-             (symbol-function 'jcp-win-executable-find))
-           (w32shell-set-shell "cygwin")
-           (message (concat "w32shell-shell: " w32shell-shell))
-           (setenv "SHELL" shell-file-name) 
-           (setq explicit-shell-file-name shell-file-name)
-           ))
       (require 'w32shell)
+      (unless (fboundp 'real-w32shell-remove-exec-path)
+        (defalias 'real-w32shell-remove-exec-path
+          (symbol-function 'w32shell-remove-exec-path)))
+      (defalias 'w32shell-remove-exec-path
+        'jcp-wrap-w32shell-remove-exec-path)
+      (unless (fboundp 'real-executable-find)
+        (defalias 'real-executable-find
+          (symbol-function 'executable-find)))
+      (defalias 'executable-find
+        (symbol-function 'jcp-win-executable-find))
+      (w32shell-set-shell "cygwin")
+      (message (concat "w32shell-shell: " w32shell-shell))
+      (setenv "SHELL" shell-file-name) 
+      (setq explicit-shell-file-name shell-file-name)
+
 
       (setq emacsw32-style-frame-title t)
       (setq menuacc-mode t)
@@ -105,6 +102,9 @@
       (setq tramp-default-method "sshx")
       (setq tramp-verbose 10)
 
+      (eval-after-load "ipython"
+        '(progn
+           (setq ipython-command (jcp-win-executable-find ipython-command))))
       ))
 
 

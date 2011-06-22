@@ -4,30 +4,32 @@
 
 (eval-after-load "flyspell"
   '(progn
-     (dolist (hook '(text-mode-hook org-mode-hook cc-mode-hook python-mode-hook
-                                    lisp-mode-hook emacs-lisp-mode-hook
-                                    cperl-mode-hook
-                                    ))
+     (dolist (hook '(text-mode-hook org-mode-hook))
        (add-hook hook (lambda () (flyspell-mode 1))))
-     (dolist (hook '(python-mode cc-mode))
-       (add-hook hook (lambda () (flyspell-prog-mode 1))))
+     (dolist (hook '(cc-mode-hook 
+                     lisp-mode-hook emacs-lisp-mode-hook
+                     cperl-mode-hook python-mode-hook))
+       (add-hook hook (lambda () 
+                        (flyspell-mode 0)
+                        (flyspell-prog-mode))))
      ))
+
 
 ;; flymake
 (eval-after-load "flymake"
   '(progn
-     ;; (setq flymake-log-level 3)
-    
-
+     (setq flymake-log-level 3)
+     
+     
      (defun flymake-pylint-init (&optional trigger-type)
        (let* ((temp-file (flymake-init-create-temp-buffer-copy
                           'flymake-create-temp-inplace))
-         (local-file (file-relative-name
-                      temp-file
-                      (file-name-directory buffer-file-name)))
-         (options (when trigger-type (list "--trigger-type" trigger-type))))
+              (local-file (file-relative-name
+                           temp-file
+                           (file-name-directory buffer-file-name)))
+              (options (when trigger-type (list "--trigger-type" trigger-type))))
          (list "python" 
-               (append (list (concat jcp-home "bin/pyflymake.py")) 
+               (append (list (concat user-emacs-directory "bin/pyflymake.py")) 
                        (append options (list local-file))))))
      (add-to-list 'flymake-allowed-file-name-masks
                   '("\\.py\\'" flymake-pylint-init))
@@ -35,7 +37,7 @@
        (when (get-char-property (point) 'flymake-overlay)
          (let ((help (get-char-property (point) 'help-echo)))
            (if help (message "%s" help)))))
-
+     
      (add-hook 'post-command-hook 'jcp-flymake-show-help)
      ))
 (setq flymake-extension-auto-show t)
@@ -113,7 +115,7 @@
 	 (defalias 'ecb-activate (symbol-function 'jcp-ecb-activate))))))
 
 (let ((bcc-enabled 'nil)
-      (byte-compile-verbose 'nil)
+;      (byte-compile-verbose 'nil)
       (byte-compile-warnings ()))
   (unless (fboundp 'cedet)
     (progn
@@ -161,10 +163,8 @@
                                  "/bin"))
 )
 
-
-(autoload 'python-mode "python-mode" "Python Mode." t)
-(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+;;(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+;;(add-to-list 'interpreter-mode-alist '("python" . python-mode))
 
 
 (setq ropemacs-enable-shortcuts nil)
@@ -183,20 +183,31 @@
       ropemacs-enable-autoimport t
       )
 
-(add-hook 'python-mode-hook 
-          (lambda ()
-            (require 'ipython)
-            (require 'pythontidy-mode)
-            (setq python-python-command "ipython")
-            (setq py-python-command-args '( "-colors" "Linux"))
 
-            ;dont invoke flymake on temporary buffers for the interpreter
-            (unless (eq buffer-file-name nil) (flymake-mode 1)) 
-            (local-set-key [f2] 'flymake-goto-prev-error)
-            (local-set-key [f3] 'flymake-goto-next-error)
-                                        ;(pythontidy-mode t)
-            (eldoc-mode 1)
-            ))
+(defun jcp-python-mode-hook ()
+  ;;(define-key python-mode-map "\C-m" 'newline-and-indent) ;; for 'python.el'
+  (unless (string-match jcp-systype "windows")
+    (eldoc-mode 1)
+    (eldoc-mode 0)))
+
+(add-hook 'python-mode-hook 'jcp-python-mode-hook)
+
+
+;; (eval-after-load "python-mode"
+;;   '(progn
+;;      (require 'ipython)
+;;      (setq python-python-command "ipython")
+;;      ))
+
+;; (add-hook 'python-mode-hook 
+;;           (lambda ()
+;;             ;;dont invoke flymake on temporary buffers for the interpreter
+;;             ;;(unless (eq buffer-file-name nil) (flymake-mode 1)) 
+;;             ;;(local-set-key [f2] 'flymake-goto-prev-error)
+;;             ;;(local-set-key [f3] 'flymake-goto-next-error)
+;;             ;;(pythontidy-mode t)
+;;             (eldoc-mode 1)
+;;             ))
 
 
 ;(add-hook 'python-mode-hook
@@ -327,8 +338,8 @@
 
      (add-hook 'org-mode-hook 'jcp-org-load)))
 
-(unless (fboundp 'org-mode)
-  (load-library  (concat jcp-home "lib/org/lisp/org-install")))
+;(unless (fboundp 'org-mode)
+;  (load-library  (concat user-emacs-di "lib/org/lisp/org-install")))
 
 
 (eval-after-load "icicles"
@@ -347,6 +358,25 @@
      ))
 
 
+(eval-after-load "htmlize"
+  '(progn
+     (setq htmlize-head-tags
+           (concat
+            "<!--[if lt IE 9]>"
+            "<script"
+            "src='http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js'>"
+            "</script>"
+            "<![endif]-->"
+            "<style type='text/css'>"
+            "html { font-size: 100%; }"
+            "body { font-size: 1.2em; }"
+            ".flyspell-incorrect, .flyspell-duplicate {"
+            "  color: inherit !important;"
+            "  font-weight: inherit !important;"
+            "  text-decoration: inherit !important;"
+            "}"
+            "</style>"))))
+              
 (defcustom my-window-setup-hook nil
   "Hook for window-setup"
   :type 'hook)
@@ -358,7 +388,7 @@
    (menu-bar-mode 1)
    ;(icy-mode 1)
    (run-hooks 'my-window-setup-hook)
-   (require 'todochiku)
+   ;(require 'todochiku)
    )
 
 

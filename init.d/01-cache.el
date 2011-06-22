@@ -1,7 +1,7 @@
 ;; set up byte code caching
 ;(setq bcc-enabled 'nil)
 (setq max-lisp-eval-depth 3000)
-(setq byte-complile-verbose 'nil)
+;(setq byte-complile-verbose 'nil)
 (setq byte-compile-warnings ())
 
 (eval-after-load "byte-code-cache"

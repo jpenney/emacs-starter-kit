@@ -43,6 +43,7 @@
                            'auto-complete
                            'php-mode
 			   'diff-git
+                           'htmlize
                            ;;'color-theme ;; not really working
                            )
   "Libraries that should be installed by default.")
