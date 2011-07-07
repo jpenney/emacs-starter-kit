@@ -137,10 +137,14 @@ and there are no guarantees about what constitutes \"non-nil\"."
                           (not perltidy-mode)
                         ; Enable if >0.
                         (> (prefix-numeric-value arg) 0)))
+  (if perltidy-mode
+      (add-hook 'write-file-hooks 'perltidy-write-hook nil t)
+    (remove-hook 'write-file-hooks 'perltidy-write-hook)))
   
-  (make-local-hook 'write-file-hooks)
-  (funcall (if perltidy-mode #'add-hook #'remove-hook)
-           'write-file-hooks 'perltidy-write-hook))
+;;  (make-local-hook 'write-file-hooks)
+;;  (funcall (if perltidy-mode #'add-hook #'remove-hook)
+;;           'write-file-hooks 'perltidy-write-hook))
+  
 
 ; Add this to the list of minor modes.
 (if (not (assq 'perltidy-mode minor-mode-alist))

@@ -1,6 +1,9 @@
 ;; 00-init
 ;; handle basic setup, packaging, pre-byte-code-cache
 
+(if (featurep 'python)
+    (unload-feature 'python))
+
 ;; add lib to load-path
 (add-to-list 'load-path (concat user-emacs-directory "lib/"))
 
