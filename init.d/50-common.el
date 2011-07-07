@@ -27,7 +27,7 @@
                       (file-name-directory buffer-file-name)))
          (options (when trigger-type (list "--trigger-type" trigger-type))))
          (list "python" 
-               (append (list (concat jcp-home "bin/pyflymake.py")) 
+               (append (list (concat user-emacs-directory "bin/pyflymake.py")) 
                        (append options (list local-file))))))
      (add-to-list 'flymake-allowed-file-name-masks
                   '("\\.py\\'" flymake-pylint-init))
@@ -132,9 +132,7 @@
 ;;;;;;;;;;;
 ;; auto-complete
 ;;;;;;;;;;;
-;(add-to-list 'bcc-blacklist 
-;	     (concat jcp-home
-                                        ;"lib/auto-complete/auto-complete-config*"))
+
 (message "configure auto-complete")
 (add-to-list 'load-path (concat  jcp-cedet-dir "/semantic/"))
 (add-to-list 'load-path (concat  jcp-cedet-dir "/semantic/bovine/"))
@@ -328,7 +326,7 @@
      (add-hook 'org-mode-hook 'jcp-org-load)))
 
 (unless (fboundp 'org-mode)
-  (load-library  (concat jcp-home "lib/org/lisp/org-install")))
+  (load-library  (concat user-emacs-directory "lib/org/lisp/org-install")))
 
 
 (eval-after-load "icicles"

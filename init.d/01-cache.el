@@ -1,8 +1,8 @@
 ;; set up byte code caching
 ;(setq bcc-enabled 'nil)
 (setq max-lisp-eval-depth 3000)
-(setq byte-complile-verbose 'nil)
-(setq byte-compile-warnings ())
+;(setq byte-complile-verbose 'nil)
+;(setq byte-compile-warnings ())
 
 (eval-after-load "byte-code-cache"
   '(progn
@@ -22,6 +22,7 @@ The resulting name is always an absolute path to a file ending in
      (message "patching bcc-cache-file-name")
      ))
 
-;;(load-library "bytecomp")
-;;(require 'bytecomp)
+;; if I don't do this I get strange errors about missing symbols later
+(load-library "bytecomp")
+(require 'bytecomp)
 (require 'byte-code-cache)

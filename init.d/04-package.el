@@ -43,6 +43,7 @@
                            'auto-complete
                            'php-mode
 			   'diff-git
+                           'ipython
                            ;;'color-theme ;; not really working
                            )
   "Libraries that should be installed by default.")
@@ -50,8 +51,30 @@
 ;; seems to be some missing auto-loads causing issues
 
 
+(setq jcp-packages (list 'idle-highlight-mode
+                         'ruby-mode
+                           'inf-ruby
+                           'css-mode
+                           'yaml-mode
+                           'find-file-in-project
+                           'magit
+                           'gist
+                           'yasnippet-bundle
+                           'icicles
+                           'org
+                           'todochiku
+                           'fringe-helper
+                           'flymake-cursor
+                           'auto-complete
+                           'php-mode
+			   'diff-git
+                           'ipython
+                           ;;'color-theme ;; not really working
+                           ))
 
-(dolist (package jcp-packages)
-  (unless (or (member package package-activated-list)
-              (functionp package))
-    (jcp-package-install-package package)))
+(let ((bcc-enabled 'nil))
+  (dolist (package jcp-packages)
+    (progn
+      (unless (or (member package package-activated-list)
+                  (functionp package))
+        (jcp-package-install-package package)))))
